@@ -4,7 +4,7 @@ MAKEFLAGS += -rR
 
 # This is the name that our final executable will have.
 # Change as needed.
-override OUTPUT := myos
+override OUTPUT := open95
 
 # User controllable C compiler command.
 CC := cc
