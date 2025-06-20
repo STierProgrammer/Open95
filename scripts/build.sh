@@ -2,6 +2,8 @@
 
 cd ..
 
+make
+
 # Build "limine" utility.
 make -C include/limine
 

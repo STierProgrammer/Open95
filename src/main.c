@@ -2,6 +2,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "limine/limine.h"
+#include "gdt/gdt.h"
+
+struct GDT gdt = {0};
 
 // Set the base revision to 3, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -95,6 +98,8 @@ static void hcf(void) {
 // If renaming kmain() to something else, make sure to change the
 // linker script accordingly.
 void kmain(void) {
+    initGDT(&gdt);
+
     // Ensure the bootloader actually understands our base revision (see spec).
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {
         hcf();
