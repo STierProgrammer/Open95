@@ -3,47 +3,78 @@
 
 #include <stdint.h>
 
-/// @brief Argument `entry` type is struct SegmentDescriptor 
-/// @brief Argument `base` is a 64 bit binary number
+/**
+ * @brief Sets the base address fields of a GDT entry.
+ * 
+ * This macro splits the 64-bit base address into the respective
+ * parts of the GDT entry structure.
+ * 
+ * @param entry A GDTEntry structure to modify.
+ * @param base A 64-bit base address to set.
+ */
 #define SET_BASE(entry, base) {\
-    entry.lower_base = base & 0xFFFF; \
-    entry.middle_base = (base >> 16) & 0xFF; \
-    entry.higher_base = (base >> 24) & 0xFF; \
-    entry.even_higher_base = (base >> 32); \
+    entry.low_base = (base) & 0xFFFF; \
+    entry.mid_base = ((base) >> 16) & 0xFF; \
+    entry.high_base = ((base) >> 24) & 0xFF; \
+    entry.highest_base = ((base) >> 32); \
 }
 
-/// @brief Argument `entry` type is struct SegmentDescriptor
-/// @brief Argument `limit` is a 20 bit binary number
+/**
+ * @brief Sets the segment limit fields of a GDT entry.
+ * 
+ * The segment limit is a 20-bit value split across two fields:
+ * low_limit and the lower 4 bits of limit_and_flags.
+ * This macro updates those fields accordingly without affecting
+ * the upper 4 bits of limit_and_flags.
+ * 
+ * @param entry A GDTEntry structure to modify.
+ * @param limit A 20-bit segment limit value.
+ */
 #define SET_LIMIT(entry, limit) {\
-    entry.lower_limit = limit & 0xFFFF; \
+    entry.low_limit = (limit) & 0xFFFF; \
     entry.limit_and_flags = ((limit >> 16) & 0x0F) | (entry.limit_and_flags & 0xF0); \
 }
 
-/// @brief Argument `entry` type is struct SegmentDescriptor
-/// @brief Argument `flags` is a 4 bit binary number
+/**
+ * @brief Sets the flags field of the segment descriptor.
+ * 
+ * The flags occupy the upper 4 bits of the limit_and_flags byte.
+ * This macro preserves the lower 4 bits
+ * and sets the upper 4 bits to the provided flags value.
+ * 
+ * @param entry A GDTEntry structure to modify.
+ * @param flags A 4-bit flags value.
+ */
 #define SET_FLAGS(entry, flags) {\
-    entry.limit_and_flags = (entry.limit_and_flags & 0xF0) | (flags << 4); \
+    entry.limit_and_flags = (entry.limit_and_flags & 0x0F) | ((flags & 0x0F) << 4); \
 }
 
-typedef struct {
-    uint16_t lower_limit;
-    uint16_t lower_base;
-    uint8_t middle_base;
+typedef struct GDTEntry {
+    uint16_t low_limit;
+    uint16_t low_base;
+    uint8_t mid_base;
     uint8_t access_byte;
-    // Limit is the low byte and
-    // flags is the high byte
-    uint8_t limit_and_flags;
-    uint8_t higher_base;
-    uint32_t even_higher_base;
-    uint32_t _reserved;
-} __attribute__((packed)) SegmentDescriptor;
+    uint8_t limit_and_flags; ///< Upper 4 bits of limit and 4 bits of flags. 
+    uint8_t high_base;
+    uint32_t highest_base;
+    uint32_t reserved;
+} __attribute__((packed)) GDTEntry;
 
-struct GDT {
-    SegmentDescriptor descriptors[256];
-};
+typedef struct GDT {
+    GDTEntry NullDescriptor;
+    GDTEntry KernelCodeSegment;
+    GDTEntry KernelDataSegment;
+    GDTEntry UserCodeSegment;
+    GDTEntry UserDataSegment;
+} __attribute__((packed)) GDT;
 
-void initGDT(struct GDT* src);
-extern void setGDT(uint16_t limit, uint64_t base);
-extern void reloadSegments(void);
+typedef struct GDTR {
+    uint16_t limit;
+    uint64_t base;
+} __attribute__((packed)) GDTR;
+
+
+void initGDT(struct GDT* gdt, struct GDTR* gdtr);
+extern void loadGDT(struct GDTR* gdtr);
 
 #endif

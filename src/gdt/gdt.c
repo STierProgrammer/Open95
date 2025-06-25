@@ -1,38 +1,40 @@
 #include "gdt.h"
 
-void initGDT(struct GDT* src) {
+void initGDT(struct GDT* gdt, struct GDTR* gdtr) {
     // Null descriptor 
-    SET_BASE(src->descriptors[0], 0l);
-    SET_LIMIT(src->descriptors[0], 0);
-    SET_FLAGS(src->descriptors[0], 0);
-    src->descriptors[0].access_byte = 0;
+    SET_BASE(gdt->NullDescriptor, 0l);
+    SET_LIMIT(gdt->NullDescriptor, 0l);
+    SET_FLAGS(gdt->NullDescriptor, 0);
+    gdt->NullDescriptor.access_byte = 0;
 
     // Kernel mode code segment
-    SET_BASE(src->descriptors[1], 0l);
-    SET_LIMIT(src->descriptors[1], 0xFFFFF);
-    SET_FLAGS(src->descriptors[1], 0xA);
-    src->descriptors[1].access_byte = 0x9A;
+    SET_BASE(gdt->KernelCodeSegment, 0l);
+    SET_LIMIT(gdt->KernelCodeSegment, 0xFFFFF);
+    SET_FLAGS(gdt->KernelCodeSegment, 0xA);
+    gdt->KernelCodeSegment.access_byte = 0x9A;
 
     // Kernel mode data segment
-    SET_BASE(src->descriptors[2], 0l);
-    SET_LIMIT(src->descriptors[2], 0xFFFFF);
-    SET_FLAGS(src->descriptors[2], 0xC);
-    src->descriptors[2].access_byte = 0x92;
+    SET_BASE(gdt->KernelDataSegment, 0l);
+    SET_LIMIT(gdt->KernelDataSegment, 0xFFFFF);
+    SET_FLAGS(gdt->KernelDataSegment, 0xC);
+    gdt->KernelDataSegment.access_byte = 0x92;
     
     // User mode code segment
-    SET_BASE(src->descriptors[3], 0l);
-    SET_LIMIT(src->descriptors[3], 0xFFFFF);
-    SET_FLAGS(src->descriptors[3], 0xA);
-    src->descriptors[3].access_byte = 0xFA;
+    SET_BASE(gdt->UserCodeSegment, 0l);
+    SET_LIMIT(gdt->UserCodeSegment, 0xFFFFF);
+    SET_FLAGS(gdt->UserCodeSegment, 0xA);
+    gdt->UserCodeSegment.access_byte = 0xFA;
 
     // User mode data segment
-    SET_BASE(src->descriptors[4], 0l);
-    SET_LIMIT(src->descriptors[4], 0xFFFFF);
-    SET_FLAGS(src->descriptors[4], 0xC);
-    src->descriptors[4].access_byte = 0xF2;
+    SET_BASE(gdt->UserDataSegment, 0l);
+    SET_LIMIT(gdt->UserDataSegment, 0xFFFFF);
+    SET_FLAGS(gdt->UserDataSegment, 0xC);
+    gdt->UserDataSegment.access_byte = 0xF2;
 
     // TODO: Task state segment
 
-    setGDT(sizeof(struct GDT) - 1, (uint64_t)src->descriptors);
-    reloadSegments();
+    gdtr->limit = sizeof(struct GDT) - 1;
+    gdtr->base = (uint64_t)&gdt->NullDescriptor;
+
+    loadGDT(gdtr);
 }
