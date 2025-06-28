@@ -98,7 +98,7 @@ static void hcf(void) {
 // linker script accordingly.
 void kmain(void) {
     initGDT();
-
+    
     // Ensure the bootloader actually understands our base revision (see spec).
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {
         hcf();
