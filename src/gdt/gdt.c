@@ -1,40 +1,61 @@
 #include "gdt.h"
 
-void initGDT(struct GDT* gdt, struct GDTR* gdtr) {
-    // Null descriptor 
-    SET_BASE(gdt->NullDescriptor, 0l);
-    SET_LIMIT(gdt->NullDescriptor, 0l);
-    SET_FLAGS(gdt->NullDescriptor, 0);
-    gdt->NullDescriptor.access_byte = 0;
+extern void loadGDT(struct GDTR *gdtr);
 
-    // Kernel mode code segment
-    SET_BASE(gdt->KernelCodeSegment, 0l);
-    SET_LIMIT(gdt->KernelCodeSegment, 0xFFFFF);
-    SET_FLAGS(gdt->KernelCodeSegment, 0xA);
-    gdt->KernelCodeSegment.access_byte = 0x9A;
+static struct GDT gdt = {
+    .NullDescriptor = {
+        .low_base = 0,
+        .mid_base = 0,
+        .high_base = 0,
+        .highest_base = 0,
+        .low_limit = 0,
+        .limit_and_flags = 0,
+        .access_byte = 0,
+        .reserved = 0},
+    .KernelCodeSegment = {
+        .low_base = 0,
+        .mid_base = 0,
+        .high_base = 0,
+        .highest_base = 0,
+        .low_limit = 0x0000,
+        .limit_and_flags = 0x0A,
+        .access_byte = 0x9A,
+    },
+    .KernelDataSegment = {
+        .low_base = 0,
+        .mid_base = 0,
+        .high_base = 0,
+        .highest_base = 0,
+        .low_limit = 0x0000,
+        .limit_and_flags = 0x0C,
+        .access_byte = 0x92
+    },
+    .UserCodeSegment = {
+        .low_base = 0,
+        .mid_base = 0,
+        .high_base = 0,
+        .highest_base = 0,
+        .low_limit = 0x0000,
+        .limit_and_flags = 0x0A,
+        .access_byte = 0xFA
+    },
+    .UserDataSegment = {
+        .low_base = 0,
+        .mid_base = 0,
+        .high_base = 0,
+        .highest_base = 0,
+        .low_limit = 0x0000,
+        .limit_and_flags = 0x0C,
+        .access_byte = 0xF2
+    }
+};
 
-    // Kernel mode data segment
-    SET_BASE(gdt->KernelDataSegment, 0l);
-    SET_LIMIT(gdt->KernelDataSegment, 0xFFFFF);
-    SET_FLAGS(gdt->KernelDataSegment, 0xC);
-    gdt->KernelDataSegment.access_byte = 0x92;
-    
-    // User mode code segment
-    SET_BASE(gdt->UserCodeSegment, 0l);
-    SET_LIMIT(gdt->UserCodeSegment, 0xFFFFF);
-    SET_FLAGS(gdt->UserCodeSegment, 0xA);
-    gdt->UserCodeSegment.access_byte = 0xFA;
+static struct GDTR gdtr;
 
-    // User mode data segment
-    SET_BASE(gdt->UserDataSegment, 0l);
-    SET_LIMIT(gdt->UserDataSegment, 0xFFFFF);
-    SET_FLAGS(gdt->UserDataSegment, 0xC);
-    gdt->UserDataSegment.access_byte = 0xF2;
-
-    // TODO: Task state segment
-
-    gdtr->limit = sizeof(struct GDT) - 1;
-    gdtr->base = (uint64_t)&gdt->NullDescriptor;
-
-    loadGDT(gdtr);
+void initGDT(void)
+{
+    gdtr.limit = sizeof(struct GDT) - 1;
+    gdtr.base = (uint64_t)&gdt.NullDescriptor;
+ 
+    loadGDT(&gdtr);
 }
