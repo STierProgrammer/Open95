@@ -1,8 +1,9 @@
+#include "../include/limine/limine.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "limine/limine.h"
 #include "gdt/gdt.h"
+#include "idt/idt.h"
 
 
 // Set the base revision to 3, this is recommended as this is the latest
@@ -93,12 +94,18 @@ static void hcf(void) {
     }
 }
 
+
 // The following will be our kernel's entry point.
 // If renaming kmain() to something else, make sure to change the
 // linker script accordingly.
 void kmain(void) {
     initGDT();
-    
+    initIDT();
+
+    int a = 1;
+    int b = 0;
+    int c = a / b;
+
     // Ensure the bootloader actually understands our base revision (see spec).
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {
         hcf();
