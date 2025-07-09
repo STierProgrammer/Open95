@@ -14,7 +14,7 @@ typedef struct IDTDescriptor {
     uint8_t ist;
     uint8_t type_and_attributes;
     uint16_t mid_offset;
-    uint16_t high_offset;
+    uint32_t high_offset;
     uint32_t reserved;
 } __attribute__((packed)) IDTDescriptor;
 

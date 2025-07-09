@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "gdt.h": "c"
+        "gdt.h": "c",
+        "idt.h": "c",
+        "serial_ports.h": "c",
+        "isr_handlers.h": "c"
     }
 }

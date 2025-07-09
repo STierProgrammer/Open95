@@ -10,7 +10,7 @@ void createDescriptor(uint8_t index, uint8_t type_and_attributes, void(*handler)
     IDTDescriptor descriptor = {
         .lower_offset = offset & 0xFFFF,
         .mid_offset = (offset >> 16) & 0xFFFF,
-        .high_offset = (offset >> 32) & 0xFFFF,
+        .high_offset = (offset >> 32) & 0xFFFFFFFF,
         .segment_selector = 0x08,
         .ist = 0,
         .reserved = 0,

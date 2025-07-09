@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "gdt/gdt.h"
 #include "idt/idt.h"
+#include "serial_ports.h"
 
 
 // Set the base revision to 3, this is recommended as this is the latest
@@ -99,8 +100,12 @@ static void hcf(void) {
 // If renaming kmain() to something else, make sure to change the
 // linker script accordingly.
 void kmain(void) {
+    init_serial();
     initGDT();
+    write_serial_string("GDT Initialized\n\0");
+    
     initIDT();
+    write_serial_string("IDT Initialized\n\0");
 
     int a = 1;
     int b = 0;
