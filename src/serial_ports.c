@@ -59,6 +59,7 @@ void srputs(const char *str) {
   }
 }
 
+
 // TODO: Add other specifiers
 void srprintf(const char *fmt, ...) {
   va_list args;
@@ -77,6 +78,9 @@ void srprintf(const char *fmt, ...) {
                   int value = va_arg(args, int);
                   srput((char)value);
                   break;
+              }
+              case 'd': {
+
               }
           }
       } else {

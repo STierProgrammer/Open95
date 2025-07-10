@@ -1,8 +1,8 @@
 #include "idt.h"
 #include "isr_handlers.h"
 
-static struct IDT idt;
-static struct IDTR idtr;
+static struct IDT idt __attribute__((aligned(4096)));
+static struct IDTR idtr __attribute__((aligned(16)));
 
 void createDescriptor(uint8_t index, uint8_t type_and_attributes, void (*handler)()) {
   uint64_t offset = (uint64_t)handler;
@@ -22,9 +22,11 @@ void createDescriptor(uint8_t index, uint8_t type_and_attributes, void (*handler
 
 void initIDT(void) {
   createDescriptor(0, 0x8E, isr_divide_error);
+  createDescriptor(6, 0x8E, isr_invalid_opcode);
+  createDescriptor(0x80, 0xEF, isr_idk);
 
   idtr.size = sizeof(idt) - 1;
-  idtr.offset = (uint64_t)&idt.descriptors;
+  idtr.offset = (uint64_t)idt.descriptors;
 
   asm volatile(
       "lidt %0\n"

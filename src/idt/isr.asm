@@ -49,3 +49,13 @@ global isr_divide_error
 extern isr_divide_error_handler
 isr_divide_error:
     isr_wrapper isr_divide_error_handler
+
+global isr_invalid_opcode
+extern isr_invalid_opcode_handler
+isr_invalid_opcode:
+    isr_wrapper isr_invalid_opcode_handler
+
+global isr_idk
+extern isr_idk_handler
+isr_idk:
+    isr_wrapper isr_idk_handler

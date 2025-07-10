@@ -14,12 +14,34 @@ static struct GDT gdt = {
         .mid_base = 0,
         .high_base = 0,
         .low_limit = 0xFFFF,
-        .limit_and_flags = 0x0A,
-        .access_byte = 0x9A,
+        .access_byte = 0x98,
+        .limit_and_flags = 0x20,
     },
-    .KernelDataSegment = {.low_base = 0, .mid_base = 0, .high_base = 0, .low_limit = 0xFFFF, .limit_and_flags = 0x0C, .access_byte = 0x92},
-    .UserCodeSegment = {.low_base = 0, .mid_base = 0, .high_base = 0, .low_limit = 0xFFFF, .limit_and_flags = 0x0A, .access_byte = 0xFA},
-    .UserDataSegment = {.low_base = 0, .mid_base = 0, .high_base = 0, .low_limit = 0xFFFF, .limit_and_flags = 0x0C, .access_byte = 0xF2}};
+    .KernelDataSegment = {
+        .low_base = 0, 
+        .mid_base = 0, 
+        .high_base = 0, 
+        .low_limit = 0xFFFF, 
+        .access_byte = 0x92,
+        .limit_and_flags = 0x20, // 0x0C 
+    },
+    .UserCodeSegment = {
+        .low_base = 0, 
+        .mid_base = 0, 
+        .high_base = 0, 
+        .low_limit = 0xFFFF, 
+        .access_byte = 0xF8,
+        .limit_and_flags = 0x20, // 0x0A
+    },
+    .UserDataSegment = {
+        .low_base = 0, 
+        .mid_base = 0, 
+        .high_base = 0, 
+        .low_limit = 0xFFFF, 
+        .access_byte = 0xF2,
+        .limit_and_flags = 0x20, // 0x0C 
+    }
+    };
 
 static struct GDTR gdtr;
 
