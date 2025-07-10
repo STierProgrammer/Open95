@@ -102,14 +102,10 @@ static void hcf(void) {
 void kmain(void) {
     init_serial();
     initGDT();
-    write_serial_string("GDT Initialized\n\0");
-    
-    initIDT();
-    write_serial_string("IDT Initialized\n\0");
+    srputs("GDT Initialized\n");
 
-    int a = 1;
-    int b = 0;
-    int c = a / b;
+    initIDT();
+    srputs("IDT Initialized\n");
 
     // Ensure the bootloader actually understands our base revision (see spec).
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {

@@ -6,5 +6,7 @@ int init_serial();
 int serial_received();
 char read_serial();
 int is_transmit_empty();
-void write_serial(char a);
-void write_serial_string(char* str);
+
+void srput(char a);
+void srputs(const char* str);
+void srprintf(const char* fmt, ...);
