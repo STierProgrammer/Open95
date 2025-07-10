@@ -101,11 +101,12 @@ static void hcf(void) {
 // linker script accordingly.
 void kmain(void) {
     init_serial();
-    initGDT();
-    srputs("GDT Initialized\n");
+    initIDT();
+    srprintf("GDT Initialized\n");
 
     initIDT();
-    srputs("IDT Initialized\n");
+    srprintf("IDT Initialized\n");
+    int a = 1 / 0;
 
     // Ensure the bootloader actually understands our base revision (see spec).
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {
