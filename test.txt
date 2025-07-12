@@ -1,0 +1,3 @@
+GDT Initialized
+IDT Initialized
+Division error!

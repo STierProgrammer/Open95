@@ -18,28 +18,28 @@ static struct GDT gdt = {
         .limit_and_flags = 0x20,
     },
     .KernelDataSegment = {
-        .low_base = 0, 
-        .mid_base = 0, 
-        .high_base = 0, 
-        .low_limit = 0xFFFF, 
+        .low_base = 0,
+        .mid_base = 0,
+        .high_base = 0,
+        .low_limit = 0xFFFF,
         .access_byte = 0x92,
-        .limit_and_flags = 0x20, // 0x0C 
+        .limit_and_flags = 0x20, // 0x0C
     },
     .UserCodeSegment = {
-        .low_base = 0, 
-        .mid_base = 0, 
-        .high_base = 0, 
-        .low_limit = 0xFFFF, 
+        .low_base = 0,
+        .mid_base = 0,
+        .high_base = 0,
+        .low_limit = 0xFFFF,
         .access_byte = 0xF8,
         .limit_and_flags = 0x20, // 0x0A
     },
     .UserDataSegment = {
-        .low_base = 0, 
-        .mid_base = 0, 
-        .high_base = 0, 
-        .low_limit = 0xFFFF, 
+        .low_base = 0,
+        .mid_base = 0,
+        .high_base = 0,
+        .low_limit = 0xFFFF,
         .access_byte = 0xF2,
-        .limit_and_flags = 0x20, // 0x0C 
+        .limit_and_flags = 0x20, // 0x0C
     }
     };
 
@@ -56,4 +56,6 @@ void initGDT(void)
         "movw %%ax, %%ds\n"
         "movw %%ax, %%es\n"
         "movw %%ax, %%ss\n" ::"m"(gdtr) : "rax");
+
+    reload_gdt();
 }

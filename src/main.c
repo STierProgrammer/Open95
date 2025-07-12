@@ -115,9 +115,8 @@ void kmain(void)
 
     initIDT();
     srprintf("IDT Initialized\n");
-    __asm__("div %0" ::"r"(0));
+    // __asm__("div %0" ::"r"(0));
     // __asm__("int $0x80");
-    srprintf("HI");
 
     // Ensure the bootloader actually understands our base revision (see spec).
     if (LIMINE_BASE_REVISION_SUPPORTED == false)

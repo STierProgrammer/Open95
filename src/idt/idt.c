@@ -21,8 +21,8 @@ void createDescriptor(uint8_t index, uint8_t type_and_attributes, void (*handler
 }
 
 void initIDT(void) {
-  createDescriptor(0, 0x8E, isr_divide_error);
-  createDescriptor(6, 0x8E, isr_invalid_opcode);
+  createDescriptor(0x00, 0x8E, isr_divide_error);
+  createDescriptor(0x06, 0x8E, isr_invalid_opcode);
   createDescriptor(0x08, 0x8E, isr_double_fault);
 
   idtr.size = sizeof(idt) - 1;

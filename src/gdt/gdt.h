@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+extern void reload_gdt();
+
 typedef struct GDTEntry {
     uint16_t low_limit;
     uint16_t low_base;

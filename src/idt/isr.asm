@@ -34,28 +34,31 @@
     pop rax
 %endmacro
 
-global   isr_wrapper
-align   4
-
-%macro isr_wrapper 1
-    pushaq
-    cld    ; C code following the sysV ABI requires DF to be clear on function entry
-    call %1
-    popaq
-    iretq
-%endmacro
-
 global isr_divide_error
-extern isr_divide_error_handler
 isr_divide_error:
-    isr_wrapper isr_divide_error_handler
+    push 0
+    push 0x00
+    jmp isr_exception
 
 global isr_invalid_opcode
-extern isr_invalid_opcode_handler
 isr_invalid_opcode:
-    isr_wrapper isr_invalid_opcode_handler
+    push 0
+    push 0x06
+    jmp isr_exception
 
 global isr_double_fault
-extern isr_double_fault_handler
 isr_double_fault:
-    isr_wrapper isr_divide_error_handler
+    push 0
+    push 0x08
+    jmp isr_exception
+
+global isr_exception
+extern isr_exception_handler
+isr_exception:
+   pushaq
+   mov rdi, rsp
+   cld
+   call isr_exception_handler
+   popaq
+   add rsp, 16
+   iretq
