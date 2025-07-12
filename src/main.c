@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "gdt/gdt.h"
 #include "idt/idt.h"
-#include "serial_ports.h"
+#include "serial_ports/serial_ports.h"
 
 // Set the base revision to 3, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.

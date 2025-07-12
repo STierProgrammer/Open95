@@ -55,7 +55,7 @@ extern isr_invalid_opcode_handler
 isr_invalid_opcode:
     isr_wrapper isr_invalid_opcode_handler
 
-global isr_idk
-extern isr_idk_handler
-isr_idk:
-    isr_wrapper isr_idk_handler
+global isr_double_fault
+extern isr_double_fault_handler
+isr_double_fault:
+    isr_wrapper isr_divide_error_handler

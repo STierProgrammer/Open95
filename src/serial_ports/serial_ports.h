@@ -1,4 +1,8 @@
+#ifndef FREE95_SERIAL_PORTS_H
+#define FREE95_SERIAL_PORTS_H
+
 #include <stdint.h>
+#include <stdarg.h>
 
 #define PORT 0x3f8          // COM1
 
@@ -10,3 +14,5 @@ int is_transmit_empty();
 void srput(char a);
 void srputs(const char* str);
 void srprintf(const char* fmt, ...);
+
+#endif

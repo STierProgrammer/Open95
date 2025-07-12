@@ -1,5 +1,4 @@
 #include "serial_ports.h"
-#include <stdarg.h>
 
 static inline void outb(uint16_t port, uint8_t val) {
   __asm__ volatile("outb %b0, %w1" : : "a"(val), "Nd"(port) : "memory");
@@ -46,8 +45,7 @@ char read_serial() {
 int is_transmit_empty() { return inb(PORT + 5) & 0x20; }
 
 void srput(char a) {
-  while (is_transmit_empty() == 0)
-    ;
+  while (is_transmit_empty() == 0);
 
   outb(PORT, a);
 }
