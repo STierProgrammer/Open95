@@ -41,7 +41,7 @@ static struct GDT gdt = {
         .access_byte = 0xF2,
         .limit_and_flags = 0x20, // 0x0C
     }
-    };
+};
 
 static struct GDTR gdtr;
 

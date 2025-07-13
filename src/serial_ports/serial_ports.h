@@ -3,8 +3,9 @@
 
 #include <stdint.h>
 #include <stdarg.h>
+#include "../arch/misc.h"
 
-#define PORT 0x3f8          // COM1
+#define COM1_PORT 0x3f8
 
 int init_serial();
 int serial_received();
