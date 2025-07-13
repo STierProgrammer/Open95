@@ -1,7 +1,7 @@
 #ifndef OPEN95_ISR_HANDLERS_H
 #define OPEN95_ISR_HANDLERS_H
 
-#include "../serial_ports/serial_ports.h"
+#include "serial_ports/serial_ports.h"
 
 extern void isr_divide_error();
 extern void isr_debug_exception();

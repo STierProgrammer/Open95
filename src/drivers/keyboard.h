@@ -5,6 +5,6 @@
 #define STATUS_REGISTER 0x64
 #define COMMAND_REGISTER 0x64
 
-#include "../arch/misc.h"
+#include "arch/misc.h"
 
 #endif
