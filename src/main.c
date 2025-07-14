@@ -7,6 +7,7 @@
 #include "arch/misc.h"
 #include "gdt/gdt.h"
 #include "idt/idt.h"
+#include "mem/pmm.h"
 #include "serial_ports/serial_ports.h"
 
 // Set the base revision to 3, this is recommended as this is the latest
@@ -35,13 +36,20 @@ static volatile LIMINE_REQUESTS_END_MARKER;
 void kmain(void)
 {
     init_serial();
-    srprintf("Serial Initialized\n");
+    srprintf("[Serial Initialized]\n");
 
     initGDT();
-    srprintf("GDT Initialized\n");
+    srprintf("[GDT Initialized]\n");
 
     initIDT();
-    srprintf("IDT Initialized\n");
+    srprintf("[IDT Initialized]\n");
+
+    pmmInit();
+    srprintf("[PMM Initialized]\n");
+
+    srprintf("%x\n", free_mem_head->base);
+    palloc();
+    srprintf("%x\n", free_mem_head->base);
 
     if (LIMINE_BASE_REVISION_SUPPORTED == false || framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
     {

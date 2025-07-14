@@ -68,9 +68,9 @@ void srprintf(const char *fmt, ...) {
                     break;
                 }
                 case 'x': {
-                    int value = va_arg(args, int);
+                    uint64_t value = va_arg(args, uint64_t);
 
-                    for (int i = 2 * sizeof(int); i > 0; i--) {
+                    for (int i = 2 * sizeof(uint64_t); i > 0; i--) {
                         int new_val = (value >> ((i - 1) * 4)) & 0xF;
 
                         if (new_val < 10) {
