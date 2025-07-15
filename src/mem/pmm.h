@@ -21,6 +21,6 @@ typedef struct RegionNode {
 
 void pmmInit(void);
 uintptr_t palloc(void);
-void pfree(void);
+void pfree(uintptr_t);
 
 #endif

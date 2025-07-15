@@ -47,9 +47,13 @@ void kmain(void)
     pmmInit();
     srprintf("[PMM Initialized]\n");
 
-    srprintf("%x\n", free_mem_head->base);
+    uintptr_t prev = free_mem_head->base;
+    srprintf("%x\n", prev);
     palloc();
     srprintf("%x\n", free_mem_head->base);
+    pfree(prev);    
+    srprintf("%x\n", free_mem_head->base);
+
 
     if (LIMINE_BASE_REVISION_SUPPORTED == false || framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
     {

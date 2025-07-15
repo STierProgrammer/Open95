@@ -34,8 +34,6 @@ void pmmInit(void) {
             }
         }
     }
-
-    srprintf("%x\n", free_mem_head);
 }
 
 uintptr_t palloc(void) {
@@ -47,4 +45,9 @@ uintptr_t palloc(void) {
     return (uintptr_t)node->base;
 }
 
-void pfree(void) {}
+void pfree(uintptr_t physc_addr) {
+    RegionNode* node = (RegionNode*)(physc_addr + hhdm_offset);
+    node->next = free_mem_head;
+    node->base = physc_addr;
+    free_mem_head = node;
+}
