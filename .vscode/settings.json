@@ -3,6 +3,10 @@
         "gdt.h": "c",
         "idt.h": "c",
         "serial_ports.h": "c",
-        "isr_handlers.h": "c"
+        "isr_handlers.h": "c",
+        "pmm.h": "c",
+        "paging.h": "c",
+        "keyboard.h": "c",
+        "misc.h": "c"
     }
 }

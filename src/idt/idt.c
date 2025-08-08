@@ -4,7 +4,8 @@
 static struct IDT idt __attribute__((aligned(4096)));
 static struct IDTR idtr __attribute__((aligned(16)));
 
-void createDescriptor(uint8_t index, uint8_t type_and_attributes, void (*handler)()) {
+void createDescriptor(uint8_t index, uint8_t type_and_attributes, void (*handler)())
+{
   uint64_t offset = (uint64_t)handler;
 
   IDTDescriptor descriptor = {
@@ -20,7 +21,8 @@ void createDescriptor(uint8_t index, uint8_t type_and_attributes, void (*handler
   idt.descriptors[index] = descriptor;
 }
 
-void initIDT(void) {
+void initIDT(void)
+{
 #define INTERRUPT_GATE 0x8E
   createDescriptor(0x00, INTERRUPT_GATE, isr_divide_error);
   createDescriptor(0x01, INTERRUPT_GATE, isr_debug_exception);
@@ -48,9 +50,8 @@ void initIDT(void) {
   idtr.offset = (uint64_t)idt.descriptors;
 
   __asm__ volatile(
-    "lidt %0\n"
-    "sti\n"
-    :
-    :"m"(idtr)
-  );
+      "lidt %0\n"
+      "sti\n"
+      :
+      : "m"(idtr));
 }

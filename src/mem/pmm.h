@@ -3,8 +3,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../serial_ports/serial_ports.h"
-#include "../limine/limine.h"
+#include "serial_ports/serial_ports.h"
+#include "limine.h"
 
 #define ALIGN_UP(address, alignment) (address + alignment - 1) & ~(alignment -1)
 #define ALIGN_DOWN(address, alignment) (address & ~(alignment - 1))

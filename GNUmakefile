@@ -13,7 +13,7 @@ CC := cc
 CFLAGS := -g -O2 -pipe
 
 # User controllable C preprocessor flags. We set none by default.
-CPPFLAGS := -I include
+CPPFLAGS := -I src/arch/$(ARCH)/include -I limine/
 
 # User controllable nasm flags.
 NASMFLAGS := -F dwarf -g
@@ -110,3 +110,34 @@ build/obj/%.asm.o: src/%.asm GNUmakefile
 .PHONY: clean
 clean:
 	rm -rf build/bin build/obj
+
+.PHONY: build
+build:
+	$(MAKE) ARCH=$(ARCH) all
+	$(MAKE) -C limine
+
+	mkdir -p build/iso_root/boot/limine build/iso_root/EFI/BOOT
+
+	cp -v build/bin/open95 build/iso_root/boot/
+
+	cp -v limine.conf \
+		limine/limine-bios.sys \
+		limine/limine-bios-cd.bin \
+		limine/limine-uefi-cd.bin \
+		build/iso_root/boot/limine/
+
+	cp -v limine/BOOTX64.EFI limine/BOOTIA32.EFI build/iso_root/EFI/BOOT
+
+	# Create the bootable ISO.
+	xorriso -as mkisofs -R -r -J -b boot/limine/limine-bios-cd.bin \
+		-no-emul-boot -boot-load-size 4 -boot-info-table -hfsplus \
+		-apm-block-size 2048 --efi-boot boot/limine/limine-uefi-cd.bin \
+		-efi-boot-part --efi-boot-image --protective-msdos-label \
+		build/iso_root -o build/image.iso
+
+	# Install Limine stage 1 and 2 for legacy BIOS boot.
+	./limine/limine bios-install build/image.iso
+
+.PHONY: run
+run:
+	qemu-system-x86_64 -serial stdio -d int -D qemu.log build/image.iso --no-reboot --no-shutdown

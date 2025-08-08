@@ -43,19 +43,14 @@ static struct GDT gdt = {
     }
 };
 
-static struct GDTR gdtr;
+static struct GDTR gdtr = {
+    .limit = sizeof(struct GDT) - 1,
+    .base = (uint64_t)&gdt
+};
 
 void initGDT(void)
 {
-    gdtr.limit = sizeof(struct GDT) - 1;
-    gdtr.base = (uint64_t)&gdt.NullDescriptor;
-
-    asm volatile(
-        "lgdt %0\n"
-        "movw $0x10, %%ax\n"
-        "movw %%ax, %%ds\n"
-        "movw %%ax, %%es\n"
-        "movw %%ax, %%ss\n" ::"m"(gdtr) : "rax");
+    asm volatile("lgdt %0\n" ::"m"(gdtr));
 
     reload_gdt();
 }

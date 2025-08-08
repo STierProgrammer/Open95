@@ -79,6 +79,13 @@ void srprintf(const char *fmt, ...) {
                             srput(new_val + 'A' - 10);
                         }
                     }
+
+                    break;
+                }
+                case '%': {
+                    srput('%');
+
+                    break;
                 }
             }
         } else {

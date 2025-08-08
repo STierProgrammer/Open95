@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#if defined(__x86_64__)
 static inline void hcf(void) {
   for (;;) {
     __asm__("hlt");
@@ -19,6 +18,5 @@ static inline uint8_t inb(uint16_t port) {
   __asm__ volatile("inb %w1, %b0" : "=a"(ret) : "Nd"(port) : "memory");
   return ret;
 }
-#endif
 
 #endif

@@ -1,14 +1,15 @@
-#include "../limine/limine.h"
+#include "limine.h"
+#include "misc.h"
 
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "arch/misc.h"
 #include "gdt/gdt.h"
 #include "idt/idt.h"
 #include "mem/pmm.h"
 #include "serial_ports/serial_ports.h"
+#include "devices/ps2.h"
 
 // Set the base revision to 3, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -47,6 +48,9 @@ void kmain(void)
     pmmInit();
     srprintf("[PMM Initialized]\n");
 
+    uint8_t res = ps2_test_controller();
+    srprintf("PS2 Controller Test: %x\n", res);
+    
     uintptr_t prev = free_mem_head->base;
     srprintf("%x\n", prev);
     palloc();
