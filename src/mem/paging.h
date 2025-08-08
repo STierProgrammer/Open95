@@ -33,7 +33,7 @@ typedef struct PageTable {
 } PageTable;
 
 uint64_t read_cr3(void);
-void map(PageTable* PML4, uintptr_t physical_addr, uintptr_t virtual_addr);
+void map_page_table(PageTable* PML4, uintptr_t physical_addr, uintptr_t virtual_addr);
 PageTable* init_pml4(void);
 
 #endif

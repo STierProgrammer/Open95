@@ -8,7 +8,7 @@
 #include "gdt/gdt.h"
 #include "idt/idt.h"
 #include "mem/pmm.h"
-#include "serial_ports/serial_ports.h"
+#include "devices/serial.h"
 #include "devices/ps2.h"
 
 // Set the base revision to 3, this is recommended as this is the latest
@@ -57,7 +57,6 @@ void kmain(void)
     srprintf("%x\n", free_mem_head->base);
     pfree(prev);    
     srprintf("%x\n", free_mem_head->base);
-
 
     if (LIMINE_BASE_REVISION_SUPPORTED == false || framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
     {

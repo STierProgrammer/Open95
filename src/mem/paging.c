@@ -18,31 +18,30 @@ void set_page_table_entry(PageTable *table, uint64_t index)
     }
 }
 
-void map(PageTable *PML4, uintptr_t physical_addr, uintptr_t virtual_addr)
+void map_page_table(PageTable *pml4, uintptr_t physical_addr, uintptr_t virtual_addr)
 {
-    uint64_t PML4_INDEX = (virtual_addr >> 39) & 0x1FF;
-    uint64_t PML3_INDEX = (virtual_addr >> 30) & 0x1FF;
-    uint64_t PML2_INDEX = (virtual_addr >> 21) & 0x1FF;
-    uint64_t PML_INDEX = (virtual_addr >> 12) & 0x1FF;
+    uint64_t pml4_index = (virtual_addr >> 39) & 0x1FF;
+    uint64_t pml3_index = (virtual_addr >> 30) & 0x1FF;
+    uint64_t pml2_index = (virtual_addr >> 21) & 0x1FF;
+    uint64_t pml_index = (virtual_addr >> 12) & 0x1FF;
 
-    set_page_table_entry(PML4, PML4_INDEX);
+    set_page_table_entry(pml4, pml4_index);
 
-    PageTable *PML3 = (PageTable *)(PML4->entries[PML4_INDEX].PHYSC_ADDR + hhdm_offset);
-    set_page_table_entry(PML3, PML3_INDEX);
+    PageTable *pml3 = (PageTable *)(pml4->entries[pml4_index].PHYSC_ADDR + hhdm_offset);
+    set_page_table_entry(pml3, pml3_index);
 
-    PageTable *PML2 = (PageTable *)(PML3->entries[PML3_INDEX].PHYSC_ADDR + hhdm_offset);
-    set_page_table_entry(PML2, PML2_INDEX);
+    PageTable *pml2 = (PageTable *)(pml3->entries[pml3_index].PHYSC_ADDR + hhdm_offset);
+    set_page_table_entry(pml2, pml2_index);
 
-    PageTable *PML = (PageTable *)(PML2->entries[PML2_INDEX].PHYSC_ADDR + hhdm_offset);
-    set_page_table_entry(PML, PML_INDEX);
+    PageTable *pml = (PageTable *)(pml2->entries[pml2_index].PHYSC_ADDR + hhdm_offset);
+    set_page_table_entry(pml, pml_index);
 
-    PML->entries[PML_INDEX].PHYSC_ADDR = physical_addr;
+    pml->entries[pml_index].PHYSC_ADDR = physical_addr;
 }
 
 PageTable *init_pml4()
 {
-    uintptr_t cr3 = (uintptr_t)readCR3();
-    PageTable *pml4 = (PageTable *)((cr3 >> 12) << 12);
-
+    uintptr_t cr3 = (uintptr_t)read_cr3();
+    PageTable *pml4 = (PageTable *)(cr3 & ~0xFFF);
     return pml4;
 }
