@@ -2,6 +2,8 @@
 MAKEFLAGS += -rR
 .SUFFIXES:
 
+ARCH ?= x86_64
+
 # This is the name that our final executable will have.
 # Change as needed.
 override OUTPUT := open95

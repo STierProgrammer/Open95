@@ -10,6 +10,7 @@
 #include "mem/pmm.h"
 #include "devices/serial.h"
 #include "devices/ps2.h"
+#include "mem/paging.h"
 
 // Set the base revision to 3, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -51,13 +52,15 @@ void kmain(void)
     uint8_t res = ps2_test_controller();
     srprintf("PS2 Controller Test: %x\n", res);
     
-    uintptr_t prev = free_mem_head->base;
+    uint64_t prev = free_mem_head->base;
     srprintf("%x\n", prev);
     palloc();
     srprintf("%x\n", free_mem_head->base);
     pfree(prev);    
     srprintf("%x\n", free_mem_head->base);
 
+    PageTable* pml4 = init_pml4();
+    srprintf("%x\n", pml4);
     if (LIMINE_BASE_REVISION_SUPPORTED == false || framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
     {
         hcf();

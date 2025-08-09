@@ -15,12 +15,12 @@ extern struct RegionNode* free_mem_head;
 extern uint64_t hhdm_offset;
 
 typedef struct RegionNode {
-    uintptr_t base;
+    uint64_t base;
     struct RegionNode* next;
 } RegionNode;
 
 void pmmInit(void);
-uintptr_t palloc(void);
-void pfree(uintptr_t);
+uint64_t palloc(void);
+void pfree(uint64_t);
 
 #endif

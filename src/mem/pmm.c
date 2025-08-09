@@ -36,16 +36,16 @@ void pmmInit(void) {
     }
 }
 
-uintptr_t palloc(void) {
-    if (!free_mem_head) return (uintptr_t)NULL;
+uint64_t palloc(void) {
+    if (!free_mem_head) return (uint64_t)NULL;
 
     RegionNode* node = free_mem_head;
     free_mem_head = free_mem_head->next;
 
-    return (uintptr_t)node->base;
+    return node->base;
 }
 
-void pfree(uintptr_t physc_addr) {
+void pfree(uint64_t physc_addr) {
     RegionNode* node = (RegionNode*)(physc_addr + hhdm_offset);
     node->next = free_mem_head;
     node->base = physc_addr;
