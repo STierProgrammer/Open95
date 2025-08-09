@@ -2,7 +2,10 @@
 #include "isr_handlers.h"
 
 static struct IDT idt __attribute__((aligned(4096)));
-static struct IDTR idtr __attribute__((aligned(16)));
+static struct IDTR idtr __attribute__((aligned(16))) = {
+  .offset = (uint64_t)idt.descriptors,
+  .size =  sizeof(idt) - 1,
+};
 
 void createDescriptor(uint8_t index, uint8_t type_and_attributes, void (*handler)())
 {
@@ -45,9 +48,6 @@ void initIDT(void)
   createDescriptor(0x13, INTERRUPT_GATE, isr_simd_floating_point_exception);
   createDescriptor(0x14, INTERRUPT_GATE, isr_virtualization_exception);
   createDescriptor(0x15, INTERRUPT_GATE, isr_control_protection_exception);
-
-  idtr.size = sizeof(idt) - 1;
-  idtr.offset = (uint64_t)idt.descriptors;
 
   __asm__ volatile(
       "lidt %0\n"

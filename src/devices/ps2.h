@@ -56,4 +56,6 @@ void enable_first_ps2_port(void);
 /// 0x04 data line stuck high 
 uint8_t test_first_ps2_port(void); 
 
+void init_ps2_controller();
+
 #endif

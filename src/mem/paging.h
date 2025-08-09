@@ -7,9 +7,9 @@
 
 #define PAGE_SIZE 4096
 
-#define PAGE_PRESENT 0x001
-#define PAGE_WRITABLE 0x010
-#define PAGE_USERMODE 0x100
+#define PAGE_PRESENT 0x1
+#define PAGE_WRITABLE 0x2
+#define PAGE_USERMODE 0x4
 
 extern uint64_t hhdm_offset;
 
@@ -36,7 +36,7 @@ typedef struct PageTable {
     PageEntry entries[512];
 } PageTable;
 
-void map_page_table(PageTable* PML4, uint64_t physical_addr, uint64_t virtual_addr);
+void map_page_table(PageTable* PML4, uint64_t physical_addr, uint64_t virtual_add, uint8_t flags);
 PageTable* init_pml4(void);
 
 #endif

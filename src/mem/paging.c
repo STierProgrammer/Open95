@@ -8,16 +8,23 @@ uint64_t read_cr3(void)
     return val;
 }
 
-void set_page_table_entry(PageTable *table, uint64_t index)
+PageTable *init_pml4()
 {
-    if (table->entries[index].P == 0)
+    uint64_t cr3 = read_cr3();
+    PageTable *pml4 = (PageTable *)(cr3 & ~0xFFF);
+    return pml4;
+}
+
+void set_page_table_entry(PageEntry *entry)
+{
+    if (!entry->P)
     {
-        table->entries[index] = (PageEntry){0};
-        table->entries[index].PHYSC_ADDR = palloc();
-        table->entries[index].P = 1;
-        table->entries[index].RW = 1;
-        table->entries[index].US = 1;
-        memset((void *)(table->entries[index].PHYSC_ADDR + hhdm_offset), 0, PAGE_SIZE);
+        entry = (PageEntry *){0};
+        entry->PHYSC_ADDR = palloc();
+        entry->P = 1;
+        entry->RW = 1;
+        entry->US = 1;
+        memset((void *)(entry->PHYSC_ADDR + hhdm_offset), 0, PAGE_SIZE);
     }
 }
 
@@ -28,22 +35,24 @@ void map_page_table(PageTable *pml4, uint64_t physical_addr, uint64_t virtual_ad
     uint64_t pml2_index = (virtual_addr >> 21) & 0x1FF;
     uint64_t pml_index = (virtual_addr >> 12) & 0x1FF;
 
-    set_page_table_entry(pml4, pml4_index);
+    srprintf("physical address: %x\n", physical_addr);
+    srprintf("virtual address: %x\n", virtual_addr);
+    srprintf("pml4_index: %x\n", pml4_index);
+    srprintf("pml3_index: %x\n", pml3_index);
+    srprintf("pml2_index: %x\n", pml2_index);
+    srprintf("pml_index: %x\n", pml_index);
+    
+    set_page_table_entry(&pml4->entries[pml4_index]);
 
     PageTable *pml3 = (PageTable *)(pml4->entries[pml4_index].PHYSC_ADDR + hhdm_offset);
-    set_page_table_entry(pml3, pml3_index);
+    set_page_table_entry(&pml3->entries[pml3_index]);
 
     PageTable *pml2 = (PageTable *)(pml3->entries[pml3_index].PHYSC_ADDR + hhdm_offset);
-    set_page_table_entry(pml2, pml2_index);
+    set_page_table_entry(&pml2->entries[pml2_index]);
 
     PageTable *pml = (PageTable *)(pml2->entries[pml2_index].PHYSC_ADDR + hhdm_offset);
-    pml->entries[pml_index].P = 1;
+    pml->entries[pml_index].P = (flags >> 0) & 0x1;
+    pml->entries[pml_index].RW = (flags >> 1) & 0x1;
+    pml->entries[pml_index].US = (flags >> 2) & 0x1;
     pml->entries[pml_index].PHYSC_ADDR = physical_addr;
-}
-
-PageTable *init_pml4()
-{
-    uint64_t cr3 = read_cr3();
-    PageTable *pml4 = (PageTable *)(cr3 & ~0xFFF);
-    return pml4;
 }

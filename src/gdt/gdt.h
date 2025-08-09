@@ -5,7 +5,8 @@
 
 extern void reload_gdt();
 
-typedef struct GDTEntry {
+typedef struct GDTEntry
+{
     uint16_t low_limit;
     uint16_t low_base;
     uint8_t mid_base;
@@ -14,7 +15,8 @@ typedef struct GDTEntry {
     uint8_t high_base;
 } __attribute__((packed)) GDTEntry;
 
-typedef struct GDT {
+typedef struct GDT
+{
     GDTEntry NullDescriptor;
     GDTEntry KernelCodeSegment;
     GDTEntry KernelDataSegment;
@@ -22,11 +24,11 @@ typedef struct GDT {
     GDTEntry UserDataSegment;
 } __attribute__((packed)) GDT;
 
-typedef struct GDTR {
+typedef struct GDTR
+{
     uint16_t limit;
     uint64_t base;
 } __attribute__((packed)) GDTR;
-
 
 void initGDT(void);
 

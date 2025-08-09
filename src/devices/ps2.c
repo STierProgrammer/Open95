@@ -73,3 +73,15 @@ uint8_t test_first_ps2_port(void)
     write_command_register(CMD_TEST_FIRST_PS2_PORT);
     return read_data_port();
 }
+
+void init_ps2_controller() {
+    // https://wiki.osdev.org/I8042_PS/2_Controller
+    // TODO: Initialize USB Controllers
+    // TODO: Determine if the PS/2 Controller Exists
+
+    disable_first_ps2_port();
+    disable_second_ps2_port();
+
+    // TODO: Flush The Output Buffer
+    
+}
