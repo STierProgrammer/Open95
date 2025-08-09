@@ -61,8 +61,7 @@ void kmain(void)
 
     PageTable* pml4 = init_pml4();
     srprintf("pml4: %x\n", pml4);
-    map_page_table(pml4, (uint64_t)0x100000, (uint64_t)0xffff800000100000, PAGE_PRESENT | PAGE_WRITABLE);
-    
+    map_page_table(pml4, 0xffff8000fd000000, 0xfd000000, PAGE_PRESENT | PAGE_WRITABLE);
 
     if (LIMINE_BASE_REVISION_SUPPORTED == false || framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
     {

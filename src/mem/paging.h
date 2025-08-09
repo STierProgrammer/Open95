@@ -23,9 +23,10 @@ typedef struct PageEntry {
     uint64_t D : 1;
     uint64_t PAT : 1;
     uint64_t G : 1;
-
     uint64_t LOW_AVL : 3;
+
     uint64_t PHYSC_ADDR: 36;
+    
     uint64_t RSVD : 4;
     uint64_t HIGH_AVL : 7;
     uint64_t PK : 4;
