@@ -1,5 +1,5 @@
-#ifndef FREE95_SERIAL_PORTS_H
-#define FREE95_SERIAL_PORTS_H
+#ifndef FREE95_DEVICES_SERIAL_H
+#define FREE95_DEVICES_SERIAL_H
 
 #include <stdint.h>
 #include <stdarg.h>
@@ -13,7 +13,7 @@ char read_serial();
 int is_transmit_empty();
 
 void srput(char a);
-void srputs(const char* str);
-void srprintf(const char* fmt, ...);
+void srputs(const char *str);
+void srprintf(const char *fmt, ...);
 
 #endif

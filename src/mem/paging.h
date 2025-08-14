@@ -13,7 +13,8 @@
 
 extern uint64_t hhdm_offset;
 
-typedef struct PageEntry {
+typedef struct PageEntry
+{
     uint64_t P : 1;
     uint64_t RW : 1;
     uint64_t US : 1;
@@ -25,19 +26,20 @@ typedef struct PageEntry {
     uint64_t G : 1;
     uint64_t LOW_AVL : 3;
 
-    uint64_t PHYSC_ADDR: 36;
-    
+    uint64_t PHYSC_ADDR : 36;
+
     uint64_t RSVD : 4;
     uint64_t HIGH_AVL : 7;
     uint64_t PK : 4;
     uint64_t XD : 1;
 } PageEntry;
 
-typedef struct PageTable {
+typedef struct PageTable
+{
     PageEntry entries[512];
 } PageTable;
 
-void map_page_table(PageTable* PML4, uint64_t physical_addr, uint64_t virtual_add, uint8_t flags);
-PageTable* init_pml4(void);
+void map_page_table(PageTable *PML4, uint64_t physical_addr, uint64_t virtual_add, uint8_t flags);
+PageTable *init_pml4(void);
 
 #endif

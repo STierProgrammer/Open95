@@ -1,6 +1,7 @@
 #include "serial.h"
 
-int init_serial() {
+int init_serial()
+{
     outb(COM1_PORT + 1, 0x00); // Disable all interrupts
     outb(COM1_PORT + 3, 0x80); // Enable DLAB (set baud rate divisor)
     outb(COM1_PORT + 0, 0x03); // Set divisor to 3 (lo byte) 38400 baud
@@ -12,8 +13,9 @@ int init_serial() {
     outb(COM1_PORT + 0, 0xAE); // Test serial chip (send byte 0xAE and check if serial returns same byte)
 
     // Check if serial is faulty (i.e: not same byte as sent)
-    if (inb(COM1_PORT + 0) != 0xAE) {
-      return 1;
+    if (inb(COM1_PORT + 0) != 0xAE)
+    {
+        return 1;
     }
 
     // If serial is not faulty set it in normal operation mode
@@ -22,73 +24,95 @@ int init_serial() {
     return 0;
 }
 
-int serial_received() {
+int serial_received()
+{
     return inb(COM1_PORT + 5) & 1;
 }
 
-char read_serial() {
-    while (serial_received() == 0);
+char read_serial()
+{
+    while (serial_received() == 0)
+        ;
     return inb(COM1_PORT);
 }
 
-int is_transmit_empty() {
+int is_transmit_empty()
+{
     return inb(COM1_PORT + 5) & 0x20;
 }
 
-void srput(char a) {
-  while (is_transmit_empty() == 0);
+void srput(char a)
+{
+    while (is_transmit_empty() == 0)
+        ;
 
-  outb(COM1_PORT, a);
+    outb(COM1_PORT, a);
 }
 
-void srputs(const char *str) {
-  while (*str) {
-    srput(*str);
-    str++;
-  }
+void srputs(const char *str)
+{
+    while (*str)
+    {
+        srput(*str);
+        str++;
+    }
 }
 
 // TODO: Add other specifiers
-void srprintf(const char *fmt, ...) {
+void srprintf(const char *fmt, ...)
+{
     va_list args;
     va_start(args, fmt);
 
-    while (*fmt) {
-        if (*fmt == '%') {
+    while (*fmt)
+    {
+        if (*fmt == '%')
+        {
             fmt++;
-            switch (*fmt) {
-                case 's': {
-                    const char* value = va_arg(args, const char*);
-                    srputs(value);
-                    break;
-                }
-                case 'c': {
-                    int value = va_arg(args, int);
-                    srput((char)value);
-                    break;
-                }
-                case 'x': {
-                    uint64_t value = va_arg(args, uint64_t);
-
-                    for (int i = 2 * sizeof(uint64_t); i > 0; i--) {
-                        int new_val = (value >> ((i - 1) * 4)) & 0xF;
-
-                        if (new_val < 10) {
-                            srput(new_val + '0');
-                        } else {
-                            srput(new_val + 'A' - 10);
-                        }
-                    }
-
-                    break;
-                }
-                case '%': {
-                    srput('%');
-
-                    break;
-                }
+            switch (*fmt)
+            {
+            case 's':
+            {
+                const char *value = va_arg(args, const char *);
+                srputs(value);
+                break;
             }
-        } else {
+            case 'c':
+            {
+                int value = va_arg(args, int);
+                srput((char)value);
+                break;
+            }
+            case 'x':
+            {
+                uint64_t value = va_arg(args, uint64_t);
+
+                for (int i = 2 * sizeof(uint64_t); i > 0; i--)
+                {
+                    int new_val = (value >> ((i - 1) * 4)) & 0xF;
+
+                    if (new_val < 10)
+                    {
+                        srput(new_val + '0');
+                    }
+                    else
+                    {
+                        srput(new_val + 'A' - 10);
+                    }
+                }
+
+                break;
+            }
+            case '%':
+            {
+                srput('%');
+
+                break;
+            }
+            }
+        }
+        else
+        {
             srput(*fmt);
         }
 

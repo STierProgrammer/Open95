@@ -18,39 +18,27 @@ static struct GDT gdt = {
         .limit_and_flags = 0x20,
     },
     .KernelDataSegment = {
-        .low_base = 0,
-        .mid_base = 0,
-        .high_base = 0,
-        .low_limit = 0xFFFF,
-        .access_byte = 0x92,
+        .low_base = 0, .mid_base = 0, .high_base = 0, .low_limit = 0xFFFF, .access_byte = 0x92,
         .limit_and_flags = 0x20, // 0x0C
     },
     .UserCodeSegment = {
-        .low_base = 0,
-        .mid_base = 0,
-        .high_base = 0,
-        .low_limit = 0xFFFF,
-        .access_byte = 0xF8,
+        .low_base = 0, .mid_base = 0, .high_base = 0, .low_limit = 0xFFFF, .access_byte = 0xF8,
         .limit_and_flags = 0x20, // 0x0A
     },
     .UserDataSegment = {
-        .low_base = 0,
-        .mid_base = 0,
-        .high_base = 0,
-        .low_limit = 0xFFFF,
-        .access_byte = 0xF2,
+        .low_base = 0, .mid_base = 0, .high_base = 0, .low_limit = 0xFFFF, .access_byte = 0xF2,
         .limit_and_flags = 0x20, // 0x0C
-    }
-};
+    }};
 
 static struct GDTR gdtr = {
     .limit = sizeof(struct GDT) - 1,
-    .base = (uint64_t)&gdt
-};
+    .base = (uint64_t)&gdt};
 
-void initGDT(void)
+void init_gdt(void)
 {
-    asm volatile("lgdt %0\n" ::"m"(gdtr));
+    asm volatile("lgdt %0\n"
+                 :
+                 : "m"(gdtr));
 
     reload_gdt();
 }

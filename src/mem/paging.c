@@ -8,6 +8,7 @@ uint64_t read_cr3(void)
     return val;
 }
 
+
 PageTable *init_pml4()
 {
     uint64_t cr3 = read_cr3();

@@ -1,36 +1,16 @@
-# Nuke built-in rules and variables.
-MAKEFLAGS += -rR
-.SUFFIXES:
+SRCDIR := src
+OBJDIR := build/obj
+BINDIR := build/bin
+ISODIR := build/iso_root
+OUTPUT := open95
 
 ARCH ?= x86_64
 
-# This is the name that our final executable will have.
-# Change as needed.
-override OUTPUT := open95
-
-# User controllable C compiler command.
 CC := cc
-
-# User controllable C flags.
 CFLAGS := -g -O2 -pipe
-
-# User controllable C preprocessor flags. We set none by default.
 CPPFLAGS := -I src/arch/$(ARCH)/include -I limine/
-
-# User controllable nasm flags.
 NASMFLAGS := -F dwarf -g
-
-# User controllable linker flags. We set none by default.
-LDFLAGS :=
-
-# Check if CC is Clang.
-override CC_IS_CLANG := $(shell ! $(CC) --version 2>/dev/null | grep 'clang' >/dev/null 2>&1; echo $$?)
-
-# If the C compiler is Clang, set the target as needed.
-ifeq ($(CC_IS_CLANG),1)
-    override CC += \
-        -target x86_64-unknown-none
-endif
+LDFLAGS := 
 
 # Internal C flags that should not be changed by the user.
 override CFLAGS += \
@@ -72,63 +52,48 @@ override LDFLAGS += \
     -z max-page-size=0x1000 \
     -T linker.ld
 
-# Use "find" to glob all *.c, *.S, and *.asm files in the tree and obtain the
-# object and header dependency file names.
-override SRCFILES := $(shell cd src && find -L * -type f | LC_ALL=C sort)
-override CFILES := $(filter %.c,$(SRCFILES))
-override ASFILES := $(filter %.S,$(SRCFILES))
-override NASMFILES := $(filter %.asm,$(SRCFILES))
-override OBJ := $(addprefix build/obj/,$(CFILES:.c=.c.o) $(ASFILES:.S=.S.o) $(NASMFILES:.asm=.asm.o))
-override HEADER_DEPS := $(addprefix build/obj/,$(CFILES:.c=.c.d) $(ASFILES:.S=.S.d))
+SRCFILES := $(shell cd src && find -L * -type f | LC_ALL=C sort)
+CFILES := $(filter %.c,$(SRCFILES))
+NASMFILES := $(filter %.asm,$(SRCFILES))
 
-# Default target. This must come first, before header dependencies.
-.PHONY: all
-all: build/bin/$(OUTPUT)
+OBJFILES := $(addprefix build/obj/,$(CFILES:.c=.c.o) $(NASMFILES:.asm=.asm.o))
+HEADERDEPS := $(addprefix build/obj/,$(CFILES:.c=.c.d) $(NASMFILES:.asm=.asm.d))
 
-# Include header dependencies.
--include $(HEADER_DEPS)
-
-# Link rules for the final executable.
-build/bin/$(OUTPUT): GNUmakefile linker.ld $(OBJ)
+build/bin/$(OUTPUT): GNUmakefile linker.ld $(OBJFILES)
 	mkdir -p "$$(dirname $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJFILES) -o $@
 
-# Compilation rules for *.c files.
 build/obj/%.c.o: src/%.c GNUmakefile
 	mkdir -p "$$(dirname $@)"
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
-# Compilation rules for *.S files.
-build/obj/%.S.o: src/%.S GNUmakefile
-	mkdir -p "$$(dirname $@)"
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
-
-# Compilation rules for *.asm (nasm) files.
 build/obj/%.asm.o: src/%.asm GNUmakefile
 	mkdir -p "$$(dirname $@)"
 	nasm $(NASMFLAGS) $< -o $@
 
-# Remove object files and the final executable.
-.PHONY: clean
-clean:
-	rm -rf build/bin build/obj
+-include $(HEADERDEPS)
+
+.PHONY: all
+all:
+	$(MAKE) $(BINDIR)/$(OUTPUT)
+	$(MAKE) build
+	$(MAKE) run
 
 .PHONY: build
 build:
-	$(MAKE) ARCH=$(ARCH) all
 	$(MAKE) -C limine
 
-	mkdir -p build/iso_root/boot/limine build/iso_root/EFI/BOOT
+	mkdir -p $(ISODIR)/boot/limine $(ISODIR)/EFI/BOOT
 
-	cp -v build/bin/open95 build/iso_root/boot/
+	cp -v $(BINDIR)/$(OUTPUT) $(ISODIR)/boot/
 
 	cp -v limine.conf \
 		limine/limine-bios.sys \
 		limine/limine-bios-cd.bin \
 		limine/limine-uefi-cd.bin \
-		build/iso_root/boot/limine/
+		$(ISODIR)/boot/limine/
 
-	cp -v limine/BOOTX64.EFI limine/BOOTIA32.EFI build/iso_root/EFI/BOOT
+	cp -v limine/BOOTX64.EFI limine/BOOTIA32.EFI $(ISODIR)/EFI/BOOT
 
 	# Create the bootable ISO.
 	xorriso -as mkisofs -R -r -J -b boot/limine/limine-bios-cd.bin \
@@ -142,4 +107,4 @@ build:
 
 .PHONY: run
 run:
-	qemu-system-x86_64 -serial stdio -d int -D qemu.log build/image.iso --no-reboot --no-shutdown
+	qemu-system-x86_64 -serial stdio -d int -D build/qemu.log build/image.iso --no-reboot --no-shutdown

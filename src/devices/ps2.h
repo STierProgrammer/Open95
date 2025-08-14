@@ -8,7 +8,7 @@
 #define STATUS_REGISTER 0x64
 #define COMMAND_REGISTER 0x64
 
-/// Status Output Buffer Full 
+/// Status Output Buffer Full
 #define STATUS_OBF 0x01
 /// Staut Input Buffer Full
 #define STATUS_IBF 0x02
@@ -38,23 +38,23 @@ void disable_second_ps2_port(void);
 void enable_second_ps2_port(void);
 
 /// Possible returns:
-/// 0x00 test passed 
-/// 0x01 clock line stuck low 
-/// 0x02 clock line stuck high 
-/// 0x03 data line stuck low 
-/// 0x04 data line stuck high 
-uint8_t test_second_ps2_port(void); 
+/// 0x00 test passed
+/// 0x01 clock line stuck low
+/// 0x02 clock line stuck high
+/// 0x03 data line stuck low
+/// 0x04 data line stuck high
+uint8_t test_second_ps2_port(void);
 
 void disable_first_ps2_port(void);
 void enable_first_ps2_port(void);
 
 /// Possible returns:
-/// 0x00 test passed 
-/// 0x01 clock line stuck low 
-/// 0x02 clock line stuck high 
-/// 0x03 data line stuck low 
-/// 0x04 data line stuck high 
-uint8_t test_first_ps2_port(void); 
+/// 0x00 test passed
+/// 0x01 clock line stuck low
+/// 0x02 clock line stuck high
+/// 0x03 data line stuck low
+/// 0x04 data line stuck high
+uint8_t test_first_ps2_port(void);
 
 void init_ps2_controller();
 

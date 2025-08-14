@@ -1,6 +1,7 @@
 #ifndef OPEN95_ISR_HANDLERS_H
 #define OPEN95_ISR_HANDLERS_H
 
+#include <stdint.h>
 #include "devices/serial.h"
 
 extern void isr_divide_error();
@@ -25,7 +26,8 @@ extern void isr_simd_floating_point_exception();
 extern void isr_virtualization_exception();
 extern void isr_control_protection_exception();
 
-typedef struct ExceptionFrame {
+typedef struct ExceptionFrame
+{
     uint64_t r15;
     uint64_t r14;
     uint64_t r13;
@@ -53,6 +55,6 @@ typedef struct ExceptionFrame {
 } __attribute__((packed)) ExceptionFrame;
 
 extern void isr_exception();
-void isr_exception_handler(ExceptionFrame* eframe);
+void isr_exception_handler(ExceptionFrame *eframe);
 
 #endif

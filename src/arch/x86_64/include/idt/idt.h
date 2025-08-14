@@ -3,12 +3,14 @@
 
 #include <stdint.h>
 
-typedef struct IDTR {
+typedef struct IDTR
+{
     uint16_t size;
     uint64_t offset;
 } __attribute__((packed)) IDTR;
 
-typedef struct IDTDescriptor {
+typedef struct IDTDescriptor
+{
     uint16_t lower_offset;
     uint16_t segment_selector;
     uint8_t ist;
@@ -18,11 +20,12 @@ typedef struct IDTDescriptor {
     uint32_t reserved;
 } __attribute__((packed)) IDTDescriptor;
 
-typedef struct IDT {
+typedef struct IDT
+{
     IDTDescriptor descriptors[256];
 } __attribute__((packed)) IDT;
 
-void createDescriptor(uint8_t index, uint8_t type_and_attributes, void(*handler)());
-void initIDT(void);
+void create_descriptor(uint8_t index, uint8_t type_and_attributes, void (*handler)());
+void init_idt(void);
 
 #endif

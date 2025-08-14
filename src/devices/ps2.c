@@ -47,12 +47,12 @@ void disable_second_ps2_port(void)
     write_command_register(CMD_DISABLE_SECOND_PS2_PORT);
 }
 
-void enable_second_ps2_port(void) 
+void enable_second_ps2_port(void)
 {
     write_command_register(CMD_ENABLE_SECOND_PS2_PORT);
 }
 
-uint8_t test_second_ps2_port(void) 
+uint8_t test_second_ps2_port(void)
 {
     write_command_register(CMD_TEST_SECOND_PS2_PORT);
     return read_data_port();
@@ -63,18 +63,19 @@ void disable_first_ps2_port(void)
     write_command_register(CMD_DISABLE_FIRST_PS2_PORT);
 }
 
-void enable_first_ps2_port(void) 
+void enable_first_ps2_port(void)
 {
     write_command_register(CMD_ENABLE_FIRST_PS2_PORT);
 }
 
-uint8_t test_first_ps2_port(void) 
+uint8_t test_first_ps2_port(void)
 {
     write_command_register(CMD_TEST_FIRST_PS2_PORT);
     return read_data_port();
 }
 
-void init_ps2_controller() {
+void init_ps2_controller()
+{
     // https://wiki.osdev.org/I8042_PS/2_Controller
     // TODO: Initialize USB Controllers
     // TODO: Determine if the PS/2 Controller Exists
@@ -83,5 +84,4 @@ void init_ps2_controller() {
     disable_second_ps2_port();
 
     // TODO: Flush The Output Buffer
-    
 }

@@ -9,7 +9,6 @@
 #include "idt/idt.h"
 #include "mem/pmm.h"
 #include "devices/serial.h"
-#include "devices/ps2.h"
 #include "mem/paging.h"
 
 // Set the base revision to 3, this is recommended as this is the latest
@@ -28,6 +27,12 @@ static volatile struct limine_framebuffer_request framebuffer_request = {
     .revision = 0
 };
 
+__attribute__((used, section(".limine_requests")))
+static volatile struct limine_executable_address_request kernel_address_request = {
+    .id = LIMINE_EXECUTABLE_ADDRESS_REQUEST,
+    .revision = 0
+};
+
 // Finally, define the start and end markers for the Limine requests.
 // These can also be moved anywhere, to any .c file, as seen fit.
 __attribute__((used, section(".limine_requests_start")))
@@ -35,33 +40,43 @@ static volatile LIMINE_REQUESTS_START_MARKER;
 __attribute__((used, section(".limine_requests_end")))
 static volatile LIMINE_REQUESTS_END_MARKER;
 
+extern char section_text_begin[];
+extern char section_text_end[];
+
+extern char section_const_data_begin[];
+extern char section_const_data_end[];
+
+extern char section_mut_data_begin[];
+extern char section_mut_data_end[];
+
+void map_section(PageTable* pml4, char section_begin[], char section_end[], uint8_t flags) 
+{
+    uint64_t offset = ALIGN_DOWN((uint64_t)section_end - (uint64_t)section_begin, PAGE_SIZE);
+    uint64_t pages = ALIGN_UP(((uint64_t)section_end - (uint64_t)ALIGN_DOWN((uint64_t)section_begin, PAGE_SIZE)), PAGE_SIZE)/PAGE_SIZE;
+
+    for (uint64_t i = 0; i < pages; i++) {    
+        map_page_table(pml4, kernel_address_request.response->physical_base + offset + i * PAGE_SIZE, kernel_address_request.response->virtual_base + offset + i * PAGE_SIZE, flags);
+    }
+}
 void kmain(void)
 {
     init_serial();
     srprintf("[Serial Initialized]\n");
 
-    initGDT();
+    init_gdt();
     srprintf("[GDT Initialized]\n");
 
-    initIDT();
+    init_idt();
     srprintf("[IDT Initialized]\n");
 
-    pmmInit();
+    pmm_init();
     srprintf("[PMM Initialized]\n");
 
-    uint8_t res = ps2_test_controller();
-    srprintf("PS2 Controller Test: %x\n", res);
-    
-    uint64_t prev = free_mem_head->base;
-    srprintf("%x\n", prev);
-    palloc();
-    srprintf("%x\n", free_mem_head->base);
-    pfree(prev);    
-    srprintf("%x\n", free_mem_head->base);
-
     PageTable* pml4 = init_pml4();
-    srprintf("pml4: %x\n", pml4);
-    map_page_table(pml4, 0xffff8000fd000000, 0xfd000000, PAGE_PRESENT | PAGE_WRITABLE);
+ 
+    map_section(pml4, section_text_begin, section_text_end, PAGE_PRESENT);
+    map_section(pml4, section_const_data_begin, section_const_data_end, PAGE_PRESENT);
+    map_section(pml4, section_mut_data_begin, section_mut_data_end, PAGE_PRESENT | PAGE_WRITABLE);
 
     if (LIMINE_BASE_REVISION_SUPPORTED == false || framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
     {
