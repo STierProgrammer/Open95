@@ -49,6 +49,8 @@ extern char section_const_data_end[];
 extern char section_mut_data_begin[];
 extern char section_mut_data_end[];
 
+extern struct limine_memmap_response *memmap;
+
 void map_section(PageTable* pml4, char section_begin[], char section_end[], uint8_t flags) 
 {
     uint64_t offset = ALIGN_DOWN((uint64_t)section_end - (uint64_t)section_begin, PAGE_SIZE);
@@ -58,40 +60,40 @@ void map_section(PageTable* pml4, char section_begin[], char section_end[], uint
         map_page_table(pml4, kernel_address_request.response->physical_base + offset + i * PAGE_SIZE, kernel_address_request.response->virtual_base + offset + i * PAGE_SIZE, flags);
     }
 }
+
+void map_memmap(PageTable* pml4)
+{
+    for (uint64_t i = 0; i < memmap->entry_count; i++) 
+    {
+        struct limine_memmap_entry *entry = memmap->entries[i];
+        // TODO: LIMINE_MEMMAP_EXECUTABLE_AND_MODULES
+        if (entry->type == LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE || entry->type == LIMINE_MEMMAP_USABLE || entry->type == LIMINE_MEMMAP_FRAMEBUFFER) {
+            uint64_t base = entry->base;
+            uint64_t length = entry->length;
+            uint64_t end = (entry->base + length);
+
+            for (uint64_t current = base; current < end; current += PAGE_SIZE)
+            {
+                map_page_table(pml4, current, current + hhdm_offset, PAGE_PRESENT | PAGE_READ_WRITE);
+            }
+        }
+    }
+}
+
 void kmain(void)
 {
     init_serial();
-    srprintf("[Serial Initialized]\n");
-
     init_gdt();
-    srprintf("[GDT Initialized]\n");
-
     init_idt();
-    srprintf("[IDT Initialized]\n");
-
-    pmm_init();
-    srprintf("[PMM Initialized]\n");
+    pmm_init();;
 
     PageTable* pml4 = init_pml4();
- 
     map_section(pml4, section_text_begin, section_text_end, PAGE_PRESENT);
     map_section(pml4, section_const_data_begin, section_const_data_end, PAGE_PRESENT);
-    map_section(pml4, section_mut_data_begin, section_mut_data_end, PAGE_PRESENT | PAGE_WRITABLE);
-
-    if (LIMINE_BASE_REVISION_SUPPORTED == false || framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
-    {
-        hcf();
-    }
-
-    // Fetch the first framebuffer.
-    struct limine_framebuffer *framebuffer = framebuffer_request.response->framebuffers[0];
-
-    // Note: we assume the framebuffer model is RGB with 32-bit pixels.
-    for (size_t i = 0; i < 100; i++)
-    {
-        volatile uint32_t *fb_ptr = framebuffer->address;
-        fb_ptr[i * (framebuffer->pitch / 4) + i] = 0xff0000;
-    }
+    map_section(pml4, section_mut_data_begin, section_mut_data_end, PAGE_PRESENT | PAGE_READ_WRITE);
+    map_memmap(pml4);
+    set_cr3((uint64_t)(((uint64_t)pml4) - hhdm_offset));
+    srprintf("test");
 
     hcf();
 }

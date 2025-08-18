@@ -13,6 +13,7 @@
 
 extern struct RegionNode *free_mem_head;
 extern uint64_t hhdm_offset;
+extern struct limine_memmap_response *memmap;
 
 typedef struct RegionNode
 {

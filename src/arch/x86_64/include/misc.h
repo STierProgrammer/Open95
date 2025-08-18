@@ -23,4 +23,17 @@ static inline uint8_t inb(uint16_t port)
   return ret;
 }
 
+static inline uint64_t read_cr3(void)
+{
+    uint64_t val;
+    __asm__ volatile(
+        "mov %%cr3, %0" : "=r"(val));
+    return val;
+}
+
+static inline void set_cr3(uint64_t val)
+{
+    __asm__ volatile("mov %0, %%cr3" :: "r"(val));
+}
+
 #endif

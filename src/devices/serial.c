@@ -21,6 +21,9 @@ int init_serial()
     // If serial is not faulty set it in normal operation mode
     // (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
     outb(COM1_PORT + 4, 0x0F);
+
+    srprintf("[Serial Initialized]\n");
+    
     return 0;
 }
 

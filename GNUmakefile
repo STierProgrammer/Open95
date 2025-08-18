@@ -108,3 +108,7 @@ build:
 .PHONY: run
 run:
 	qemu-system-x86_64 -serial stdio -d int -D build/qemu.log build/image.iso --no-reboot --no-shutdown
+
+.PHONY: run_gdb
+run_gdb:
+	qemu-system-x86_64 -s -S -monitor telnet:127.0.0.1:1235,server,nowait -serial stdio -d int -D build/qemu.log build/image.iso --no-reboot --no-shutdown

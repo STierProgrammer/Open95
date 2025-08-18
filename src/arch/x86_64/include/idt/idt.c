@@ -54,4 +54,6 @@ void init_idt(void)
       "sti\n"
       :
       : "m"(idtr));
+
+  srprintf("[IDT Initialized]\n");
 }

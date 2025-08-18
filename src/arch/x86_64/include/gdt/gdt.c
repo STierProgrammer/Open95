@@ -41,4 +41,6 @@ void init_gdt(void)
                  : "m"(gdtr));
 
     reload_gdt();
+
+    srprintf("[GDT Initialized]\n");
 }
