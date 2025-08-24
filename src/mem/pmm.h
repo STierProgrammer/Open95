@@ -4,16 +4,12 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "devices/serial.h"
+#include "bootlayer/memory.h"
 #include "limine.h"
 
 #define ALIGN_UP(address, alignment) (((address) + (alignment - 1)) & ~((alignment) - 1))
 #define ALIGN_DOWN(address, alignment) ((address) & ~((alignment) - 1))
-
 #define PAGE_SIZE 4096
-
-extern struct RegionNode *free_mem_head;
-extern uint64_t hhdm_offset;
-extern struct limine_memmap_response *memmap;
 
 typedef struct RegionNode
 {

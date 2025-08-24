@@ -2,6 +2,7 @@
 #define OPEN95_MEM_VMM
 
 #include <stdint.h>
+#include <stddef.h>
 
 struct VirtualMemoryRegion 
 {
@@ -10,5 +11,8 @@ struct VirtualMemoryRegion
     struct VirtualMemoryRegion* next;
     uint8_t flags;
 };
+
+void init_vmm(void);
+
 
 #endif

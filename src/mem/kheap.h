@@ -18,8 +18,8 @@ struct KHeapRegion {
 };
 
 void print_kheap(void);
-void init_kheap(PageTable* pml4);
-void* kmalloc(PageTable* pml4, uint64_t size);
+void init_kheap();
+void* kmalloc(uint64_t size);
 void kfree(uint64_t addr);
 
 #endif

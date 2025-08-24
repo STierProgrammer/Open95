@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include "libc/string.h"
-#include "pmm.h"
+#include "mem/pmm.h"
 
 #define PAGE_PRESENT (1 << 0)
 #define PAGE_READ_WRITE (1 << 1)
@@ -16,8 +16,6 @@
 
 #define PAGE_PHYSICAL_ADDRESS_MASK 0xFFFFFFFFF000
 
-extern uint64_t hhdm_offset;
-
 typedef uint64_t PageEntry;
 
 typedef struct PageTable
@@ -25,7 +23,7 @@ typedef struct PageTable
     PageEntry entries[512];
 } PageTable;
 
-void map_page_table(PageTable *pml4, uint64_t physical_addr, uint64_t virtual_add, uint8_t flags);
-PageTable *init_pml4(void);
+void map_page_table(uint64_t physical_addr, uint64_t virtual_add, uint8_t flags);
+void init_pml4(void);
 
 #endif
