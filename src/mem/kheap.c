@@ -16,7 +16,7 @@ void init_kheap()
     map_page_table(palloc(), KHEAP_START, PAGE_PRESENT | PAGE_READ_WRITE);
 
     kheap->base = KHEAP_START;
-    kheap->size = 4096;
+    kheap->size = PAGE_SIZE;
     kheap->is_free = true;
     kheap->next = (struct KHeapRegion*)NULL;
 }
@@ -25,18 +25,19 @@ void* kmalloc(uint64_t size)
 {
     struct KHeapRegion* region = kheap;
     
-    while (region) {
-        if (region->is_free) break;
-        if (region->next) region = region->next;
-        else return (void*)NULL;
+    while (region && !region->is_free) {
+        region = region->next;
     }
 
-    if (region->size <= size) {
+    if (!region) return NULL;
+
+    if (region->size <= size) 
+    {
         uint64_t pages = (size - size % 4096) / 4096;
         uint64_t aligned_base = region->base + 4096 - region->base % 4096;
 
-        for (uint64_t page = 0; page < pages; page++) {
-            uint64_t addr = aligned_base + 4096 * page;
+        for (uint64_t i = 0; i < pages; i++) {
+            uint64_t addr = aligned_base + 4096 * i;
             map_page_table(palloc(), addr, PAGE_PRESENT | PAGE_READ_WRITE);
         }
 
@@ -48,8 +49,8 @@ void* kmalloc(uint64_t size)
     struct KHeapRegion* new_region = (struct KHeapRegion*)(region->base + size);
     new_region->base = region->base + size;
     new_region->size = region->size - size;
-    new_region->is_free = true;
     new_region->next = region->next;
+    new_region->is_free = true;
 
     region->next = new_region;
     region->size = size;

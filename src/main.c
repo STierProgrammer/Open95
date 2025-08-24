@@ -70,6 +70,8 @@ void kmain(void)
     set_cr3((uint64_t)(((uint64_t)pml4) - get_hhdm_offset()));
 
     init_kheap(pml4);
+    kmalloc(4096 + 4072);
+    print_kheap();
 
     hcf();
 }
