@@ -28,8 +28,10 @@ void map_page_table(PageTable *pml4, uint64_t physical_addr, uint64_t virtual_ad
     uint64_t pml_index = (virtual_addr >> 12) & 0x1FF;
 
     set_page_entry(&pml4->entries[pml4_index]);
+    
     PageTable *pml3 = (PageTable *)((pml4->entries[pml4_index] & PAGE_PHYSICAL_ADDRESS_MASK) + hhdm_offset);
     set_page_entry(&pml3->entries[pml3_index]);
+    
     PageTable *pml2 = (PageTable *)((pml3->entries[pml3_index] & PAGE_PHYSICAL_ADDRESS_MASK) + hhdm_offset);
     set_page_entry(&pml2->entries[pml2_index]);
 

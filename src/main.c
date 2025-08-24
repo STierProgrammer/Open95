@@ -10,6 +10,7 @@
 #include "mem/pmm.h"
 #include "devices/serial.h"
 #include "mem/paging.h"
+#include "mem/kheap.h"
 
 // Set the base revision to 3, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -85,7 +86,7 @@ void kmain(void)
     init_serial();
     init_gdt();
     init_idt();
-    pmm_init();;
+    pmm_init();
 
     PageTable* pml4 = init_pml4();
     map_section(pml4, section_text_begin, section_text_end, PAGE_PRESENT);
@@ -93,7 +94,8 @@ void kmain(void)
     map_section(pml4, section_mut_data_begin, section_mut_data_end, PAGE_PRESENT | PAGE_READ_WRITE);
     map_memmap(pml4);
     set_cr3((uint64_t)(((uint64_t)pml4) - hhdm_offset));
-    srprintf("test");
+
+    init_kheap(pml4);
 
     hcf();
 }
