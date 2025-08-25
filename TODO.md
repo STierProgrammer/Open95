@@ -1,4 +1,6 @@
-- heap/vmm
-- vfs
-- filesystem driver
-
+- HAL,
+- Heap/VMM,
+- VFS
+- Drivers
+- Userspace
+- PE
