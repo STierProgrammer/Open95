@@ -4,8 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "mem/paging.h"
-#include "devices/serial.h"
+#include "mem/include/paging.h"
+#include "devices/include/serial.h"
 
 #define KHEAP_START 0xffffffff00000000
 #define KHEAP_END 0xffffffff80000000

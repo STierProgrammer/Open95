@@ -1,4 +1,4 @@
-#include "ps2.h"
+#include "include/ps2.h"
 
 void ps2_wait_input_empty(void)
 {

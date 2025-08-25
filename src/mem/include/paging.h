@@ -2,8 +2,8 @@
 #define OPEN95_MEM_PAGING_H
 
 #include <stdint.h>
-#include "libc/string.h"
-#include "mem/pmm.h"
+#include "libc/include/string.h"
+#include "mem/include/pmm.h"
 
 #define PAGE_PRESENT (1 << 0)
 #define PAGE_READ_WRITE (1 << 1)

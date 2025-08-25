@@ -1,8 +1,8 @@
 #ifndef OPEN95_DEVICES_PS2
 #define OPEN95_DEVICES_PS2
 
-#include "misc.h"
 #include <stdint.h>
+#include "include/misc.h"
 
 #define DATA_PORT 0x60
 #define STATUS_REGISTER 0x64

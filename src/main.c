@@ -1,16 +1,16 @@
 #include "limine.h"
-#include "misc.h"
+#include "include/misc.h"
 
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "gdt/gdt.h"
-#include "idt/idt.h"
-#include "mem/pmm.h"
-#include "devices/serial.h"
-#include "mem/paging.h"
-#include "mem/kheap.h"
+#include "gdt/include/gdt.h"
+#include "idt/include/idt.h"
+#include "mem/include/pmm.h"
+#include "devices/include/serial.h"
+#include "mem/include/paging.h"
+#include "mem/include/kheap.h"
 
 PageTable* pml4 = NULL;
 
@@ -70,7 +70,7 @@ void kmain(void)
     set_cr3((uint64_t)(((uint64_t)pml4) - get_hhdm_offset()));
 
     init_kheap(pml4);
-    kmalloc(4096 + 4072);
+    kmalloc(4097);
     print_kheap();
 
     hcf();

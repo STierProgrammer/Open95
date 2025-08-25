@@ -2,7 +2,7 @@
 #define OPEN95_DEVICES_PIC_H
 
 #include <stdint.h>
-#include "misc.h"
+#include "include/misc.h"
 
 #define MASTER_PIC_COMMAND_PORT 0x20
 #define MASTER_PIC_DATA_PORT 0x21

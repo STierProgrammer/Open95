@@ -8,7 +8,7 @@ ARCH ?= x86_64
 
 CC := cc
 CFLAGS := -g -O2 -pipe
-CPPFLAGS := -I src/arch/$(ARCH)/include -I limine/
+CPPFLAGS := -I src/arch/$(ARCH) -I limine/
 NASMFLAGS := -F dwarf -g
 LDFLAGS := 
 

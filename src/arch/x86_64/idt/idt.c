@@ -1,5 +1,5 @@
-#include "idt.h"
-#include "isr_handlers.h"
+#include "include/idt.h"
+#include "include/isr_handlers.h"
 
 static struct IDT idt __attribute__((aligned(4096)));
 static struct IDTR idtr __attribute__((aligned(16))) = {

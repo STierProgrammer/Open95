@@ -3,8 +3,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "devices/serial.h"
-#include "bootlayer/memory.h"
+#include "devices/include/serial.h"
+#include "bootlayer/include/memory.h"
 #include "limine.h"
 
 #define ALIGN_UP(address, alignment) (((address) + (alignment - 1)) & ~((alignment) - 1))

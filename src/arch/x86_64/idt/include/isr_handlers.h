@@ -2,7 +2,7 @@
 #define OPEN95_ISR_HANDLERS_H
 
 #include <stdint.h>
-#include "devices/serial.h"
+#include "devices/include/serial.h"
 
 extern void isr_divide_error();
 extern void isr_debug_exception();
