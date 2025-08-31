@@ -9,6 +9,8 @@ void print_kheap(void)
         srprintf("[%x] size: %x, is_free: %x, next_addr: %x, prev_addr: %x\n", curr->base, curr->size, curr->is_free, curr->next ? curr->next->base : (uint64_t)NULL, curr->prev ? curr->prev->base : (uint64_t)NULL);
         curr = curr->next;
     } while (curr);
+
+    srprintf("\n");
 }
 
 void init_kheap(void)
@@ -32,7 +34,8 @@ void* kmalloc(uint64_t size)
     while (curr->next && (!curr->is_free || curr->size < full_size + sizeof(struct KHeapRegion))) {
         curr = curr->next;
     }
-    
+
+    // FIXME: curr may not be free
     if (!curr->is_free || curr->size < full_size + sizeof(struct KHeapRegion))
     {
         uint64_t pages_needed = ALIGN_UP(full_size, PAGE_SIZE) / PAGE_SIZE;
@@ -61,5 +64,26 @@ void* kmalloc(uint64_t size)
 
 void kfree(void* addr)
 {
-    
+    struct KHeapRegion* curr = kheap;
+    while (curr && (curr->base != addr - sizeof(struct KHeapRegion)))
+    {
+        curr = curr->next;
+    }
+
+    if (!curr) return;
+
+    curr->is_free = true;
+
+    while (curr->next && curr->next->is_free) 
+    {
+        curr->size += curr->next->size;
+        curr->next = curr->next->next;
+    }
+
+    while (curr->prev && curr->prev->is_free)
+    {
+        curr->prev->size += curr->size;
+        curr->prev->next = curr->next;
+        curr->prev = curr->prev->prev;
+    }
 }
