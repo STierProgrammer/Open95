@@ -1,6 +1,8 @@
 #ifndef OPEN95_GDT_H
 #define OPEN95_GDT_H
 
+// TODO: Add TSS
+
 #include <stdint.h>
 
 extern void reload_gdt();

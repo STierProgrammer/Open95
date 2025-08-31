@@ -1,5 +1,5 @@
-- HAL,
-- Heap/VMM,
+- HAL
+- Heap/VMM
 - VFS
 - Drivers
 - Userspace

@@ -30,30 +30,36 @@ void map_section(char section_begin[], char section_end[], uint8_t flags)
 
     for (uint64_t i = 0; i < pages; i++) {    
         map_page_table(
-            get_kernel_address()->physical_base + offset + i * PAGE_SIZE, 
-            get_kernel_address()->virtual_base + offset + i * PAGE_SIZE, 
+            get_kernel_address().physical_base + offset + i * PAGE_SIZE, 
+            get_kernel_address().virtual_base + offset + i * PAGE_SIZE, 
             flags);
     }
 }
 
 void map_memmap()
 {
-    for (uint64_t i = 0; i < get_memmap()->entry_count; i++) 
+    for (uint64_t i = 0; i < get_memmap_entries_count(); i++) 
     {
-        struct limine_memmap_entry *entry = get_memmap()->entries[i];
-        // TODO: LIMINE_MEMMAP_EXECUTABLE_AND_MODULES
-        if (entry->type == LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE || entry->type == LIMINE_MEMMAP_USABLE || entry->type == LIMINE_MEMMAP_FRAMEBUFFER) {
-            uint64_t base = entry->base;
-            uint64_t length = entry->length;
-            uint64_t end = (entry->base + length);
+        struct MemmapEntry entry = get_memmap_entry(i);
+        // TODO: Add MEMMAP_EXECUTABLE_AND_MODULES
+        if (entry.type == MEMMAP_BOOTLOADER_RECLAIMABLE || entry.type == MEMMAP_USABLE || entry.type == MEMMAP_FRAMEBUFFER) {
+            uint64_t base = entry.base;
+            uint64_t length = entry.length;
+            uint64_t end = (entry.base + length);
 
             for (uint64_t current = base; current < end; current += PAGE_SIZE)
             {
-                map_page_table(current, current + get_hhdm_offset(), PAGE_PRESENT | PAGE_READ_WRITE);
+                if (entry.type == MEMMAP_FRAMEBUFFER) {
+                    map_page_table(current, current + get_hhdm(), PAGE_PRESENT | PAGE_READ_WRITE | PAGE_ATTRIBUTE_TABLE | PAGE_WRITE_THROUGH);
+                } else {
+                    map_page_table(current, current + get_hhdm(), PAGE_PRESENT | PAGE_READ_WRITE);
+                }
             }
         }
     }
 }
+
+extern volatile struct limine_framebuffer_request framebuffer_request;
 
 void kmain(void)
 {
@@ -67,11 +73,26 @@ void kmain(void)
     map_section(section_const_data_begin, section_const_data_end, PAGE_PRESENT);
     map_section(section_mut_data_begin, section_mut_data_end, PAGE_PRESENT | PAGE_READ_WRITE);
     map_memmap();
-    set_cr3((uint64_t)(((uint64_t)pml4) - get_hhdm_offset()));
+    set_cr3((uint64_t)(((uint64_t)pml4) - get_hhdm()));
 
-    init_kheap(pml4);
-    kmalloc(4097);
+    init_kheap();
+    kmalloc(4095);
+    kmalloc(4036);
     print_kheap();
+
+    if (framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
+    {
+        hcf();
+    }
+
+    struct limine_framebuffer *framebuffer = framebuffer_request.response->framebuffers[0];
+
+    for (size_t i = 0; i < 100; i++)
+    {
+        volatile uint32_t *fb_ptr = framebuffer->address;
+
+        fb_ptr[i * (framebuffer->pitch / 4) + i] = 0xff0000;
+    }
 
     hcf();
 }

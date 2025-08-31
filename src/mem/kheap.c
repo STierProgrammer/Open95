@@ -6,12 +6,12 @@ void print_kheap(void)
 {
     struct KHeapRegion* curr = kheap;
     do {
-        srprintf("[%x] size: %x, is_free: %x, next_addr: %x\n", curr->base, curr->size, curr->is_free, curr->next ? curr->next->base : (uint64_t)NULL);
+        srprintf("[%x] size: %x, is_free: %x, next_addr: %x, prev_addr: %x\n", curr->base, curr->size, curr->is_free, curr->next ? curr->next->base : (uint64_t)NULL, curr->prev ? curr->prev->base : (uint64_t)NULL);
         curr = curr->next;
     } while (curr);
 }
 
-void init_kheap()
+void init_kheap(void)
 {
     map_page_table(palloc(), KHEAP_START, PAGE_PRESENT | PAGE_READ_WRITE);
 
@@ -19,60 +19,47 @@ void init_kheap()
     kheap->size = PAGE_SIZE;
     kheap->is_free = true;
     kheap->next = (struct KHeapRegion*)NULL;
+    kheap->prev = (struct KHeapRegion*)NULL;
 }
 
 void* kmalloc(uint64_t size)
 {
-    struct KHeapRegion* region = kheap;
+    if (size == 0) return NULL;
+
+    uint64_t full_size = size + sizeof(struct KHeapRegion);
+
+    struct KHeapRegion* curr = kheap;
+    while (curr->next && (!curr->is_free || curr->size < full_size + sizeof(struct KHeapRegion))) {
+        curr = curr->next;
+    }
     
-    while (region && !region->is_free) {
-        region = region->next;
-    }
-
-    if (!region) return NULL;
-
-    if (region->size <= size) 
+    if (!curr->is_free || curr->size < full_size + sizeof(struct KHeapRegion))
     {
-        uint64_t pages = (size - size % 4096) / 4096;
-        uint64_t aligned_base = region->base + 4096 - region->base % 4096;
+        uint64_t pages_needed = ALIGN_UP(full_size, PAGE_SIZE) / PAGE_SIZE;
 
-        for (uint64_t i = 0; i < pages; i++) {
-            uint64_t addr = aligned_base + 4096 * i;
-            map_page_table(palloc(), addr, PAGE_PRESENT | PAGE_READ_WRITE);
+        for (uint64_t i = 1; i <= pages_needed; i++) {
+            uint64_t new_page_base = (curr->base & ~0xFFF) + i * PAGE_SIZE;
+            map_page_table(palloc(), new_page_base, PAGE_PRESENT | PAGE_READ_WRITE);
+            curr->size += PAGE_SIZE;            
         }
-
-        region->size += 4096 * pages;
     }
+    
+    struct KHeapRegion* new_region = (struct KHeapRegion*)(curr->base + full_size);
 
-    region->is_free = false;
-
-    struct KHeapRegion* new_region = (struct KHeapRegion*)(region->base + size);
-    new_region->base = region->base + size;
-    new_region->size = region->size - size;
-    new_region->next = region->next;
+    new_region->prev = curr;
+    new_region->next = curr->next;
+    new_region->base = curr->base + full_size;
+    new_region->size = curr->size - full_size;
     new_region->is_free = true;
 
-    region->next = new_region;
-    region->size = size;
+    curr->next = new_region;
+    curr->size = full_size;
+    curr->is_free = false;
 
-    return (void*)region->base;
+    return (void*)(curr->base + sizeof(struct KHeapRegion));
 }
 
-void kfree(uint64_t addr)
+void kfree(void* addr)
 {
-    struct KHeapRegion* curr = kheap;
-    do {
-        if (curr->base == addr)
-        {
-            curr->is_free = true;
-
-            while (curr->next && curr->next->is_free == true)
-            {
-                curr->size += curr->next->size;
-                curr->next = curr->next->next;
-            }
-
-            break;
-        } else curr = curr->next;
-    } while (curr->next);
+    
 }

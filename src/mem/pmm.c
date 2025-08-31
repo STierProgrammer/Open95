@@ -4,18 +4,18 @@ struct RegionNode *free_mem_head = NULL;
 
 void pmm_init(void)
 {
-    for (size_t i = 0; i < get_memmap()->entry_count; i++)
+    for (size_t i = 0; i < get_memmap_entries_count(); i++)
     {
-        if (get_memmap_entry(i)->type == LIMINE_MEMMAP_USABLE)
+        if (get_memmap_entry(i).type == MEMMAP_USABLE)
         {
-            uint64_t length = get_memmap_entry(i)->length;
+            uint64_t length = get_memmap_entry(i).length;
             
-            uint64_t base = ALIGN_UP(get_memmap_entry(i)->base, PAGE_SIZE);
-            uint64_t end = ALIGN_DOWN((get_memmap_entry(i)->base + length), PAGE_SIZE);
+            uint64_t base = ALIGN_UP(get_memmap_entry(i).base, PAGE_SIZE);
+            uint64_t end = ALIGN_DOWN((get_memmap_entry(i).base + length), PAGE_SIZE);
 
             for (uint64_t current = base; current < end; current += PAGE_SIZE)
             {
-                RegionNode *node = (RegionNode *)(current + get_hhdm_offset());
+                RegionNode *node = (RegionNode *)(current + get_hhdm());
                 node->base = current;
                 node->next = free_mem_head;
                 free_mem_head = node;
@@ -43,7 +43,7 @@ uint64_t palloc(void)
 
 void pfree(uint64_t physc_addr)
 {
-    RegionNode *node = (RegionNode *)(physc_addr + get_hhdm_offset());
+    RegionNode *node = (RegionNode *)(physc_addr + get_hhdm());
     node->next = free_mem_head;
     node->base = physc_addr;
     free_mem_head = node;
