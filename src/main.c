@@ -76,8 +76,8 @@ void kmain(void)
     set_cr3((uint64_t)(((uint64_t)pml4) - get_hhdm()));
 
     init_kheap();
-    void* x = kmalloc(4095);
-    void* y = kmalloc(4036);
+    void* x = kmalloc(4095 - 2*sizeof(struct KHeapRegion));
+    void* y = kmalloc(1);
     void* z = kmalloc(4036);
     print_kheap();
     kfree(x);

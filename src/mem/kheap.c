@@ -35,16 +35,22 @@ void* kmalloc(uint64_t size)
         curr = curr->next;
     }
 
-    // FIXME: curr may not be free
-    if (!curr->is_free || curr->size < full_size + sizeof(struct KHeapRegion))
+    if (curr->size < full_size + sizeof(struct KHeapRegion))
     {
         uint64_t pages_needed = ALIGN_UP(full_size, PAGE_SIZE) / PAGE_SIZE;
+
+        if (!curr->is_free) {
+            curr->next = (struct KHeapRegion*)((curr->base & ~0xFFF) + PAGE_SIZE);
+            curr->next->prev = curr;
+            curr = curr->next;
+        }
 
         for (uint64_t i = 1; i <= pages_needed; i++) {
             uint64_t new_page_base = (curr->base & ~0xFFF) + i * PAGE_SIZE;
             map_page_table(palloc(), new_page_base, PAGE_PRESENT | PAGE_READ_WRITE);
             curr->size += PAGE_SIZE;            
         }
+
     }
     
     struct KHeapRegion* new_region = (struct KHeapRegion*)(curr->base + full_size);
