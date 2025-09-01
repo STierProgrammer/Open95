@@ -69,3 +69,13 @@ int memcmp(const void *s1, const void *s2, size_t n)
 
     return 0;
 }
+
+void strcpy(void* dest, const char* str)
+{
+    while (*str != '\0')
+    {
+        *(char*)dest = *str;
+        dest++;
+        str++;
+    }
+}

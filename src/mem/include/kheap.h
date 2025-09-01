@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include "mem/include/paging.h"
 #include "mem/include/pmm.h"
+#include "libc/include/string.h"
 #include "devices/include/serial.h"
 
 #define KHEAP_START 0xffffffff00000000
@@ -22,6 +23,8 @@ struct KHeapRegion {
 void print_kheap(void);
 void init_kheap(void);
 void* kmalloc(uint64_t size);
+void* kcalloc(uint64_t num, uint64_t size);
+void* krealloc(void *ptr, size_t new_size);
 void kfree(void* addr);
 
 #endif

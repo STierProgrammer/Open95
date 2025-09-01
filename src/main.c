@@ -76,16 +76,9 @@ void kmain(void)
     set_cr3((uint64_t)(((uint64_t)pml4) - get_hhdm()));
 
     init_kheap();
-    void* x = kmalloc(4095 - 2*sizeof(struct KHeapRegion));
-    void* y = kmalloc(1);
-    void* z = kmalloc(4036);
-    print_kheap();
-    kfree(x);
-    print_kheap();
-    kfree(z);
-    print_kheap();
-    kfree(y);
-    print_kheap();
+    char* x = (char*)kcalloc(6, sizeof(char));
+    strcpy(x, "test");
+    srprintf("x: %s\n", x);
 
     if (framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
     {

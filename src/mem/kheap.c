@@ -68,10 +68,16 @@ void* kmalloc(uint64_t size)
     return (void*)(curr->base + sizeof(struct KHeapRegion));
 }
 
+void* kcalloc(uint64_t num, uint64_t size)
+{
+    void* addr = kmalloc(num * size);
+    return memset(addr, 0, num * size);
+}
+
 void kfree(void* addr)
 {
     struct KHeapRegion* curr = kheap;
-    while (curr && (curr->base != addr - sizeof(struct KHeapRegion)))
+    while (curr && (curr->base != (uint64_t)addr - sizeof(struct KHeapRegion)))
     {
         curr = curr->next;
     }
