@@ -79,3 +79,13 @@ void strcpy(void* dest, const char* str)
         str++;
     }
 }
+
+int strncmp(const char* s1, const char* s2, unsigned long sz) {
+    for(unsigned long i = 0; i < sz; i++) {
+        if(*s1++ != *s2++ || *s1++ == '\0' || *s2++ == '\0') {
+            return s1 - s2;
+        } else continue;
+    }
+    
+    return s1 - s2;
+}

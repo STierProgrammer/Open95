@@ -15,6 +15,8 @@
 
 struct PageTable* pml4 = NULL;
 
+extern int strncmp(const char*, const char*, unsigned long);
+
 // extern volatile struct limine_framebuffer_request framebuffer_request;
 
 void kmain(void)
@@ -35,7 +37,6 @@ void kmain(void)
     kfree(y);
     krealloc(y, 30);
     print_kheap();
-
     // if (framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1)
     // {
     //     hcf();
