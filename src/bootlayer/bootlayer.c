@@ -1,5 +1,37 @@
 #include "bootlayer/include/bootlayer.h"
 
+#ifdef LIMINE_BOOTLOADER
+#include <limine.h>
+
+__attribute__((used, section(".limine_requests")))
+volatile LIMINE_BASE_REVISION(3);
+__attribute__((used, section(".limine_requests_start")))
+volatile LIMINE_REQUESTS_START_MARKER;
+__attribute__((used, section(".limine_requests_end")))
+volatile LIMINE_REQUESTS_END_MARKER;
+
+__attribute__((used, section(".limine_requests"))) 
+volatile struct limine_hhdm_request hhdm_request = {
+    .id = LIMINE_HHDM_REQUEST,
+    .revision = 3};
+
+__attribute__((used, section(".limine_requests")))
+volatile struct limine_memmap_request memmap_request = {
+    .id = LIMINE_MEMMAP_REQUEST,
+    .revision = 3};
+
+__attribute__((used, section(".limine_requests"))) 
+volatile struct limine_executable_address_request kernel_address_request = {
+    .id = LIMINE_EXECUTABLE_ADDRESS_REQUEST,
+    .revision = 3
+};
+
+__attribute__((used, section(".limine_requests")))
+volatile struct limine_framebuffer_request framebuffer_request = {
+    .id = LIMINE_FRAMEBUFFER_REQUEST,
+    .revision = 3
+};
+
 uint64_t get_hhdm(void) {
     return hhdm_request.response->offset; 
 }
@@ -16,6 +48,7 @@ static int from_limine_type(int type)
         case LIMINE_MEMMAP_BAD_MEMORY: return MEMMAP_BAD_MEMORY;
         case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE: return MEMMAP_BOOTLOADER_RECLAIMABLE;
         case LIMINE_MEMMAP_FRAMEBUFFER: return MEMMAP_FRAMEBUFFER;
+        default: return MEMMAP_UNKNOWN;
     }
 }
 
@@ -45,3 +78,4 @@ uint64_t get_memmap_entries_count(void)
     return memmap_request.response->entry_count;
 }
 
+#endif

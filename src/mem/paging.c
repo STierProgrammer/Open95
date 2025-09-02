@@ -1,18 +1,25 @@
-#include "include/paging.h"
+#include <stddef.h>
 
-extern PageTable* pml4;
+#include "include/misc.h"
+#include "mem/include/paging.h"
+#include "mem/include/pmm.h"
+
+#include "libc/include/string.h"
+#include "bootlayer/include/bootlayer.h"
+
+extern struct PageTable* pml4;
 
 void init_pml4(void)
 {
     uint64_t cr3 = read_cr3();
-    pml4 = (PageTable*)((cr3 & ~0xFFF) + get_hhdm());
+    pml4 = (struct PageTable*)((cr3 & ~0xFFF) + get_hhdm());
 }
 
-void set_page_entry(PageEntry *entry)
+static void set_page_entry(uint64_t *entry)
 {
     if (!(*entry & PAGE_PRESENT))
     {
-        *entry = (PageEntry){0};
+        *entry = 0;
         *entry |= PAGE_PRESENT;
         *entry |= PAGE_READ_WRITE;
         *entry |= PAGE_USER_SUPERVISOR;
@@ -30,12 +37,56 @@ void map_page_table(uint64_t physical_addr, uint64_t virtual_addr, uint16_t flag
 
     set_page_entry(&pml4->entries[pml4_index]);
     
-    PageTable *pml3 = (PageTable *)((pml4->entries[pml4_index] & PAGE_PHYSICAL_ADDRESS_MASK) + get_hhdm());
+    struct PageTable *pml3 = (struct PageTable*)((pml4->entries[pml4_index] & PAGE_PHYSICAL_ADDRESS_MASK) + get_hhdm());
     set_page_entry(&pml3->entries[pml3_index]);
     
-    PageTable *pml2 = (PageTable *)((pml3->entries[pml3_index] & PAGE_PHYSICAL_ADDRESS_MASK) + get_hhdm());
+    struct PageTable *pml2 = (struct PageTable*)((pml3->entries[pml3_index] & PAGE_PHYSICAL_ADDRESS_MASK) + get_hhdm());
     set_page_entry(&pml2->entries[pml2_index]);
 
-    PageTable *pml = (PageTable *)((pml2->entries[pml2_index] & PAGE_PHYSICAL_ADDRESS_MASK) + get_hhdm());
+    struct PageTable *pml = (struct PageTable*)((pml2->entries[pml2_index] & PAGE_PHYSICAL_ADDRESS_MASK) + get_hhdm());
     pml->entries[pml_index] = (physical_addr & PAGE_PHYSICAL_ADDRESS_MASK) | (flags & 0xFFF);
+}
+
+static void map_section(char section_begin[], char section_end[], uint8_t flags) 
+{
+    uint64_t offset = ALIGN_DOWN((uint64_t)section_end - (uint64_t)section_begin, PAGE_SIZE);
+    uint64_t pages = ALIGN_UP(((uint64_t)section_end - (uint64_t)ALIGN_DOWN((uint64_t)section_begin, PAGE_SIZE)), PAGE_SIZE)/PAGE_SIZE;
+
+    for (uint64_t i = 0; i < pages; i++) {    
+        map_page_table(
+            get_kernel_address().physical_base + offset + i * PAGE_SIZE, 
+            get_kernel_address().virtual_base + offset + i * PAGE_SIZE, 
+            flags);
+    }
+}
+
+void map_kernel(void)
+{
+    map_section(section_text_begin, section_text_end, PAGE_PRESENT);
+    map_section(section_const_data_begin, section_const_data_end, PAGE_PRESENT);
+    map_section(section_mut_data_begin, section_mut_data_end, PAGE_PRESENT | PAGE_READ_WRITE);       
+}
+
+
+void map_memmap(void)
+{
+    for (uint64_t i = 0; i < get_memmap_entries_count(); i++) 
+    {
+        struct MemmapEntry entry = get_memmap_entry(i);
+        // TODO: Add MEMMAP_EXECUTABLE_AND_MODULES
+        if (entry.type == MEMMAP_BOOTLOADER_RECLAIMABLE || entry.type == MEMMAP_USABLE || entry.type == MEMMAP_FRAMEBUFFER) {
+            uint64_t base = entry.base;
+            uint64_t length = entry.length;
+            uint64_t end = (entry.base + length);
+
+            for (uint64_t current = base; current < end; current += PAGE_SIZE)
+            {
+                if (entry.type == MEMMAP_FRAMEBUFFER) {
+                    map_page_table(current, current + get_hhdm(), PAGE_PRESENT | PAGE_READ_WRITE | PAGE_ATTRIBUTE_TABLE | PAGE_WRITE_THROUGH);
+                } else {
+                    map_page_table(current, current + get_hhdm(), PAGE_PRESENT | PAGE_READ_WRITE);
+                }
+            }
+        }
+    }
 }

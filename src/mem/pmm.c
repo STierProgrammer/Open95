@@ -1,10 +1,15 @@
-#include "include/pmm.h"
+#include <stddef.h>
+
+#include "mem/include/pmm.h"
+
+#include "devices/include/serial.h"
+#include "bootlayer/include/bootlayer.h"
 
 struct RegionNode *free_mem_head = NULL;
 
 void pmm_init(void)
 {
-    for (size_t i = 0; i < get_memmap_entries_count(); i++)
+    for (uint64_t i = 0; i < get_memmap_entries_count(); i++)
     {
         if (get_memmap_entry(i).type == MEMMAP_USABLE)
         {

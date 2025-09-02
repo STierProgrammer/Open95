@@ -6,10 +6,10 @@ section .text
 
 reload_gdt:
     push 0x08
-    push .reload_CS
+    push .reload_cs
     retfq
 
-.reload_CS:
+.reload_cs:
     mov ax, 0x10
     mov ds, ax
     mov es, ax

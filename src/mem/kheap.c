@@ -1,4 +1,11 @@
-#include "include/kheap.h"
+#include <stddef.h>
+
+#include "mem/include/kheap.h"
+#include "mem/include/paging.h"
+#include "mem/include/pmm.h"
+
+#include "devices/include/serial.h"
+#include "libc/include/string.h"
 
 struct KHeapRegion* kheap = (struct KHeapRegion*)KHEAP_START;
 
@@ -67,11 +74,40 @@ void* kmalloc(uint64_t size)
 
     return (void*)(curr->base + sizeof(struct KHeapRegion));
 }
-
+ 
 void* kcalloc(uint64_t num, uint64_t size)
 {
     void* addr = kmalloc(num * size);
     return memset(addr, 0, num * size);
+}
+
+void* krealloc(void* ptr, uint64_t new_size)
+{
+    struct KHeapRegion* curr = kheap;
+    while (curr && (curr->base != ((uint64_t)ptr - sizeof(struct KHeapRegion))))
+    {
+        curr = curr->next;
+    }
+
+    srprintf("%x\n", curr);
+    if (!curr) return kmalloc(new_size);
+
+    if (curr->size < new_size)
+    {
+
+    } else if (curr->size > new_size) {
+        struct KHeapRegion* new_region = (struct KHeapRegion*)(curr->base + new_size);
+        new_region->prev = curr;
+        new_region->next = curr->next;
+        new_region->size = curr->size - new_size;
+        new_region->is_free = true;
+
+        curr->next = new_region;
+        curr->size = new_size;
+        curr->is_free = false;
+    } else {
+
+    }
 }
 
 void kfree(void* addr)

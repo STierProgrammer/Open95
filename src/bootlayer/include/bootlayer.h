@@ -2,7 +2,8 @@
 #define BOOTLAYER_MEMORY_H
 
 #include <stdint.h>
-#include <limine.h>
+
+#define LIMINE_BOOTLOADER
 
 enum {
     MEMMAP_RESERVED,
@@ -13,6 +14,7 @@ enum {
     MEMMAP_BOOTLOADER_RECLAIMABLE,
     MEMMAP_FRAMEBUFFER,
     MEMMAP_USABLE,
+    MEMMAP_UNKNOWN
 };
 
 struct MemmapEntry {
@@ -25,12 +27,6 @@ struct KernelAddress {
     uint64_t physical_base;
     uint64_t virtual_base;
 };
-
-
-
-extern volatile struct limine_hhdm_request hhdm_request;
-extern volatile struct limine_memmap_request memmap_request;
-extern volatile struct limine_executable_address_request kernel_address_request;
 
 uint64_t get_hhdm(void);
 struct MemmapEntry get_memmap_entry(uint64_t index);

@@ -2,8 +2,13 @@
 #define OPEN95_MEM_PAGING_H
 
 #include <stdint.h>
-#include "libc/include/string.h"
-#include "mem/include/pmm.h"
+
+extern char section_text_begin[];
+extern char section_text_end[];
+extern char section_const_data_begin[];
+extern char section_const_data_end[];
+extern char section_mut_data_begin[];
+extern char section_mut_data_end[];
 
 #define PAGE_PRESENT (1 << 0)
 #define PAGE_READ_WRITE (1 << 1)
@@ -18,14 +23,14 @@
 
 #define PAGE_PHYSICAL_ADDRESS_MASK 0xFFFFFFFFF000
 
-typedef uint64_t PageEntry;
-
-typedef struct PageTable
+struct PageTable
 {
-    PageEntry entries[512];
-} PageTable;
+    uint64_t entries[512];
+};
 
-void map_page_table(uint64_t physical_addr, uint64_t virtual_add, uint16_t flags);
 void init_pml4(void);
+void map_page_table(uint64_t physical_addr, uint64_t virtual_add, uint16_t flags);
+void map_kernel(void);
+void map_memmap(void);
 
 #endif
