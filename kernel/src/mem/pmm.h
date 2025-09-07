@@ -8,14 +8,14 @@
 #define ALIGN_DOWN(address, alignment) ((address) & ~((alignment) - 1))
 #define PAGE_SIZE 4096
 
-typedef struct RegionNode
+struct PhysicalMemoryRegion
 {
     uint64_t base;
-    struct RegionNode *next;
-} RegionNode;
+    struct PhysicalMemoryRegion *next;
+};
 
-void pmm_init(struct KernelParams* kernel_params);
+void pmm_init(void);
 uint64_t palloc(void);
-void pfree(uint64_t);
+void pfree(uint64_t physc_addr);
 
 #endif

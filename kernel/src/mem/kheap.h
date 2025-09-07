@@ -7,19 +7,12 @@
 #define KHEAP_START 0xffffffff00000000
 #define KHEAP_END 0xffffffff80000000
 
-struct KHeapRegion {
-    uint64_t base;
-    uint64_t size;
-    struct KHeapRegion* next;
-    struct KHeapRegion* prev;
-    bool is_free;
+struct Cache {
+
 };
 
-void print_kheap(void);
-void init_kheap(void);
-void* kmalloc(uint64_t size);
-void* kcalloc(uint64_t num, uint64_t size);
-void* krealloc(void *ptr, uint64_t new_size);
-void kfree(void* addr);
+struct Slab {
+
+};
 
 #endif

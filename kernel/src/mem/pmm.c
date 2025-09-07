@@ -1,14 +1,12 @@
 #include <stddef.h>
-
 #include "mem/pmm.h"
-
 #include "devices/serial.h"
 
-extern struct KernelParams* krnl_params;
+extern struct KernelParams* kernel_params;
 
-struct RegionNode *free_mem_head = NULL;
+struct PhysicalMemoryRegion *free_mem_head = NULL;
 
-void pmm_init(struct KernelParams* kernel_params)
+void pmm_init(void)
 {
     struct Memmap* memmap = &kernel_params->memmap;
 
@@ -23,10 +21,10 @@ void pmm_init(struct KernelParams* kernel_params)
 
             for (uint64_t current = base; current < end; current += PAGE_SIZE)
             {
-                RegionNode *node = (RegionNode *)(current + kernel_params->hhdm);
-                node->base = current;
-                node->next = free_mem_head;
-                free_mem_head = node;
+                struct PhysicalMemoryRegion *region = (struct PhysicalMemoryRegion*)(current + kernel_params->hhdm);
+                region->base = current;
+                region->next = free_mem_head;
+                free_mem_head = region;
             }
         }
     }
@@ -36,23 +34,18 @@ void pmm_init(struct KernelParams* kernel_params)
 
 uint64_t palloc(void)
 {
-    if (!free_mem_head) {
-        srprintf("Pallocation failed due to free_mem_head not being initialized!\n");
-        return (uint64_t)NULL;
-    }
+    if (!free_mem_head) return (uint64_t)NULL;
     
-    RegionNode *node = free_mem_head;
+    struct PhysicalMemoryRegion *region = free_mem_head;
     free_mem_head = free_mem_head->next;
     
-    srprintf("Pallocated successfully! %x\n", free_mem_head);
-
-    return node->base;
+    return region->base;
 }
 
 void pfree(uint64_t physc_addr)
 {
-    RegionNode *node = (RegionNode *)(physc_addr + krnl_params->hhdm);
-    node->next = free_mem_head;
-    node->base = physc_addr;
-    free_mem_head = node;
+    struct PhysicalMemoryRegion *region = (struct PhysicalMemoryRegion*)(physc_addr + kernel_params->hhdm);
+    region->next = free_mem_head;
+    region->base = physc_addr;
+    free_mem_head = region;
 }

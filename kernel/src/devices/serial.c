@@ -86,6 +86,38 @@ void srprintf(const char *fmt, ...)
                 srput((char)value);
                 break;
             }
+            case 'd':
+            {
+                int value = va_arg(args, int);
+                
+                char str[64] = {0};
+                int i = 0;
+                while (value > 0)
+                {
+                    char digit = value % 10 + '0';
+                    value /= 10;
+                    str[i++] = digit;
+                }
+
+                for (int i = 63; i >= 0; i--) {
+                    srput(str[i]);
+                }
+
+                break;
+            }
+            case 'b': {
+                int value = va_arg(args, int);
+
+                if (value == 0) {
+                    srputs("false");
+                } else if (value == 1) {
+                    srputs("true");
+                } else {
+                    srputs("corrupted");
+                }
+
+                break;
+            }
             case 'x':
             {
                 uint64_t value = va_arg(args, uint64_t);

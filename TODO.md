@@ -1,6 +1,7 @@
 - HAL
 - Heap/VMM
 - VFS
+- Naming Rewrite
 - Drivers
 - Userspace
 - PE
