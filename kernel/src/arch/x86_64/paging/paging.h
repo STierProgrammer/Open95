@@ -23,6 +23,9 @@ extern char section_mut_data_end[];
 
 #define PAGE_PHYSICAL_ADDRESS_MASK 0xFFFFFFFFF000
 
+typedef uint64_t physc_addr_t;
+typedef uint64_t virt_addr_t;
+
 struct PageTable
 {
     uint64_t entries[512];

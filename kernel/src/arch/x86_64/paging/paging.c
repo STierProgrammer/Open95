@@ -28,7 +28,7 @@ static void set_page_entry(uint64_t *entry)
     }
 }
 
-void map_page_table(uint64_t physical_addr, uint64_t virtual_addr, uint16_t flags)
+void map_page_table(physc_addr_t physical_addr, virt_addr_t virtual_addr, uint16_t flags)
 {
     uint64_t pml4_index = (virtual_addr >> 39) & 0x1FF;
     uint64_t pml3_index = (virtual_addr >> 30) & 0x1FF;
@@ -52,7 +52,7 @@ static void map_section(char section_begin[], char section_end[], uint8_t flags)
     uint64_t offset = ALIGN_DOWN((uint64_t)section_end - (uint64_t)section_begin, PAGE_SIZE);
     uint64_t pages = ALIGN_UP(((uint64_t)section_end - (uint64_t)ALIGN_DOWN((uint64_t)section_begin, PAGE_SIZE)), PAGE_SIZE)/PAGE_SIZE;
 
-    for (uint64_t i = 0; i < pages; i++) {    
+    for (size_t i = 0; i < pages; i++) {    
         map_page_table(
             kernel_params->kernel_addr.physical_base + offset + i * PAGE_SIZE, 
             kernel_params->kernel_addr.virtual_base + offset + i * PAGE_SIZE, 
@@ -70,16 +70,21 @@ void map_kernel(void)
 
 void map_memmap(void)
 {
-    for (uint64_t i = 0; i < kernel_params->memmap.entry_count; i++) 
+    for (size_t i = 0; i < kernel_params->memmap.entry_count; i++) 
     {
         struct MemmapEntry entry = kernel_params->memmap.entries[i];
-        // TODO: Add MEMMAP_EXECUTABLE_AND_MODULES
-        if (entry.type == MEMMAP_BOOTLOADER_RECLAIMABLE || entry.type == MEMMAP_USABLE || entry.type == MEMMAP_FRAMEBUFFER) {
-            uint64_t base = entry.base;
-            uint64_t length = entry.length;
-            uint64_t end = (entry.base + length);
+        
+        if (entry.type == MEMMAP_BOOTLOADER_RECLAIMABLE 
+            || entry.type == MEMMAP_USABLE 
+            || entry.type == MEMMAP_FRAMEBUFFER 
+            || entry.type == MEMMAP_EXECUTABLE_AND_MODULES
+        ) {
+            size_t length = entry.length;
+            
+            physc_addr_t base = ALIGN_UP(entry.base, PAGE_SIZE);
+            physc_addr_t end = ALIGN_DOWN(entry.base + length);
 
-            for (uint64_t current = base; current < end; current += PAGE_SIZE)
+            for (physc_addr_t current = base; current < end; current += PAGE_SIZE)
             {
                 if (entry.type == MEMMAP_FRAMEBUFFER) {
                     map_page_table(current, current + kernel_params->hhdm, PAGE_PRESENT | PAGE_READ_WRITE | PAGE_ATTRIBUTE_TABLE | PAGE_WRITE_THROUGH);
